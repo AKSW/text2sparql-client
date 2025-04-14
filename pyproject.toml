@@ -1,0 +1,95 @@
+[tool.poetry]
+name = "text2sparql-client"
+version = "0.0.0"
+license = "Apache-2.0"
+description = "Command Line Client to retrieve SPARQL results from a TEXT2SPARQL conform endpoint."
+authors = ["Sebastian Tramp <sebastian.tramp@eccenca.com>"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+]
+readme = "README.md"
+
+homepage = "https://github.com/aksw/text2sparql-client"
+
+[tool.poetry.dependencies]
+python = ">=3.11, ^3"
+click = "^8.1.8"
+fastapi = "^0.115.12"
+uvicorn = "^0.34.1"
+pyyaml = "^6.0.2"
+pydantic-settings = "^2.8.1"
+
+[tool.poetry.scripts]
+text2sparql = 'text2sparql_client.cli:cli'
+
+[tool.poetry.group.dev.dependencies]
+genbadge = {extras = ["coverage"], version = "^1.1.1"}
+mypy = "^1.14.1"
+pip = "^25.0"
+pytest = "^8.3.4"
+pytest-cov = "^6.0.0"
+pytest-dotenv = "^0.5.2"
+pytest-html = "^4.1.1"
+pytest-memray = { version = "^1.7.0",  markers = "platform_system != 'Windows'" }
+ruff = "^0.9.4"
+safety = "^1.10.3"
+types-pyyaml = "^6.0.12.20250402"
+types-requests = "^2.32.0.20250328"
+
+[build-system]
+requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]
+build-backend = "poetry_dynamic_versioning.backend"
+
+[tool.poetry-dynamic-versioning]
+enable = true
+vcs = "git"
+dirty = true
+bump = true
+
+[tool.mypy]
+warn_return_any = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+addopts = ""
+
+[tool.coverage.report]
+exclude_also = [
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if TYPE_CHECKING:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+    ]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.format]
+line-ending = "lf" # Use `\n` line endings for all files
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    "ANN204",  # Missing return type annotation for special method `__init__`
+    "COM812",  # missing-trailing-comma
+    "D107",    # Missing docstring in __init__
+    "D203",    # [*] 1 blank line required before class docstring
+    "D211",    # No blank lines allowed before class docstring
+    "D213",    # Multi-line docstring summary should start at the second line
+    "D400",    # First line should end with a period
+    "D415",    # First line should end with a period, question mark, or exclamation point
+    "EM",      # Exception texts - https://docs.astral.sh/ruff/rules/#flake8-errmsg-em
+    "FBT",     # The Boolean Trap - https://docs.astral.sh/ruff/rules/#flake8-boolean-trap-fbt
+    "FIX002",  # Allow to add TODO notes in the code
+    "G004",    # Logging statement uses f-string
+    "ISC001",  # single-line-implicit-string-concatenation
+    "PD",      # opinionated linting for pandas code
+    "S101",    # use of assert detected
+    "TRY003",  # Avoid specifying long messages outside the exception class
+]
+

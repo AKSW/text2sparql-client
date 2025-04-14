@@ -1,0 +1,1 @@
+"""text2sparql-client"""

@@ -1,0 +1,12 @@
+# Changes here will be overwritten by Copier
+_commit: v7.1.0
+_src_path: gh:eccenca/cmem-plugin-template
+author_mail: sebastian.tramp@eccenca.com
+author_name: Sebastian Tramp
+github_page: https://github.com/aksw/text2sparql-client
+project_description: Command Line Client to retrieve SPARQL results from a TEXT2SPARQL
+    conform endpoint.
+project_slug: text2sparql-client
+project_type: generic
+pypi: true
+
