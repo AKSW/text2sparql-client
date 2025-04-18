@@ -19,6 +19,7 @@ uvicorn = "^0.34.1"
 pyyaml = "^6.0.2"
 pydantic-settings = "^2.8.1"
 requests = "^2.32.3"
+loguru = "^0.7.3"
 
 [tool.poetry.scripts]
 text2sparql = 'text2sparql_client.cli:cli'

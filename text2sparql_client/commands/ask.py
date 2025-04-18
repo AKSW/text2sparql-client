@@ -7,30 +7,12 @@ from pathlib import Path
 import click
 import requests
 import yaml
-from pydantic import BaseModel
+from loguru import logger
+from pydantic import ValidationError
 
-from text2sparql_client.context import ApplicationContext
+from text2sparql_client.database import Database
+from text2sparql_client.models.questions_file import QuestionsFile
 from text2sparql_client.request import text2sparql
-from text2sparql_client.sqlite import Database
-
-
-class Question(BaseModel):
-    """Question (pydantic model)"""
-
-    question: dict[str, str]
-
-
-class DatasetDescription(BaseModel):
-    """Dataset (pydantic model)"""
-
-    id: str
-
-
-class QuestionsFile(BaseModel):
-    """Questions File (pydantic model)"""
-
-    dataset: DatasetDescription
-    questions: list[Question]
 
 
 @click.command(name="ask")
@@ -50,9 +32,7 @@ class QuestionsFile(BaseModel):
     show_default=True,
     help="Timeout in seconds.",
 )
-@click.pass_obj
 def ask_command(
-    app: ApplicationContext,
     questions_file: TextIOWrapper,
     url: str,
     answers_db: str,
@@ -65,11 +45,11 @@ def ask_command(
     """
     database = Database(file=Path(answers_db))
     file_model = QuestionsFile.model_validate(yaml.safe_load(questions_file))
-    app.echo_info(f"Asking questions about dataset {file_model.dataset.id} on endpoint {url}.")
+    logger.info(f"Asking questions about dataset {file_model.dataset.id} on endpoint {url}.")
     responses = []
-    for questions in file_model.questions:
-        for language, question in questions.question.items():
-            app.echo_info(f"{question} ({language}) ... ", nl=False)
+    for question_section in file_model.questions:
+        for language, question in question_section.question.items():
+            logger.info(f"{question} ({language}) ... ")
             try:
                 response = text2sparql(
                     endpoint=url,
@@ -78,8 +58,16 @@ def ask_command(
                     database=database,
                     timeout=timeout,
                 )
-                app.echo_info("done", fg="green")
-                responses.append(response.model_dump())
+                answer: dict[str, str] = response.model_dump()
+                if question_section.id and file_model.dataset.prefix:
+                    answer["qname"] = (
+                        f"{file_model.dataset.prefix}:{question_section.id}-{language}"
+                    )
+                    answer["uri"] = f"{file_model.dataset.id}{question_section.id}-{language}"
+                responses.append(answer)
             except (requests.ConnectionError, requests.HTTPError, requests.ReadTimeout) as error:
-                app.echo_info(str(error), fg="red")
+                logger.error(str(error))
+            except ValidationError as error:
+                logger.debug(str(error))
+                logger.error("validation error")
     click.secho(json.dumps(responses, indent=2))

@@ -1,0 +1,9 @@
+# yamllint disable rule:line-length
+---
+dataset:
+  id: https://text2sparql.aksw.org/2025/bad-dataset/
+questions:
+
+  - question:
+      en: How much products do we sell?
+

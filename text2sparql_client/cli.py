@@ -22,6 +22,8 @@ def cli(ctx: click.core.Context, debug: bool) -> None:
     """TEXT2SPARQL Client
 
     This command line tool can be used to retrieve answers from a TEXT2SPARQL conform server.
+
+    For information on the TEXT2SPARQL challenge, have a look at: https://text2sparql.aksw.org/
     """
     ctx.obj = ApplicationContext(debug=debug)
 

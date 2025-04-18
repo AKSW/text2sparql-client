@@ -1,0 +1,20 @@
+# yamllint disable rule:line-length
+---
+dataset:
+  id: https://text2sparql.aksw.org/2025/corporate/
+  prefix: cd25
+  defaultNamespace: http://ld.company.org/prod-vocab/
+questions:
+
+  - id: 1
+    question:
+      en: In which department is Ms. Müller?
+      de: In welcher Abteilung ist Frau Müller?
+
+  - id: 2
+    question:
+      de: Was ist der Sinn des Lebens?
+
+  - question:
+      de: Wieviele Einwohner hat Leipzig?
+
