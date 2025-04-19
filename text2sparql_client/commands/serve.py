@@ -36,6 +36,11 @@ endpoint = fastapi.FastAPI(
 )
 
 
+def run_service(host: str, port: int) -> None:
+    """Start uvicorn server"""
+    uvicorn.run(endpoint, host=host, port=port)
+
+
 @endpoint.get("/")
 async def get_answer(question: str, dataset: str) -> dict[str, str]:
     """Serve some answers"""
@@ -76,4 +81,4 @@ def serve_command(app: ApplicationContext, port: int, host: str, sleep_: int) ->
     """
     endpoint.debug = app.debug
     settings.sleep = sleep_
-    uvicorn.run(endpoint, host=host, port=port)
+    run_service(host=host, port=port)

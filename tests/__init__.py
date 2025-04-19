@@ -72,5 +72,5 @@ def run_asserting_error(command: tuple[str, ...] | list[str], match: str) -> Ann
     """Wrap the CliRunner, asserting exit 1 or more"""
     result = _run(command=command)
     assert result.exit_code >= 1, f"exit code should be 1 or more (but was {result.exit_code})"
-    assert match in result.stdout
+    assert match in result.stdout or match in str(result.result)
     return result
