@@ -1,5 +1,6 @@
 """pytest config"""
 
+import json
 from collections.abc import Generator
 from http import HTTPStatus
 from multiprocessing import Process
@@ -84,3 +85,12 @@ def new_dir(tmp_path: Path) -> Generator[Path, Any, None]:
     yield tmp_path
     # switch back to original directory
     chdir(current_directory)
+
+
+def is_json_file(file: str) -> bool:
+    """Check if a file is JSON."""
+    try:
+        json.loads(Path(file).read_text())
+    except json.JSONDecodeError:
+        return False
+    return True

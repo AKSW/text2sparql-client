@@ -1,7 +1,7 @@
 """Test queries"""
 
 from tests import run, run_asserting_error
-from tests.conftest import QuestionsFiles, ServerFixture
+from tests.conftest import QuestionsFiles, ServerFixture, is_json_file
 
 
 def test_noop() -> None:
@@ -26,3 +26,14 @@ def test_non_successful_runs(server: ServerFixture, questions_files: QuestionsFi
         command=("ask", str(questions_files.partial_ids), server.get_url()),
         match="Only some questions have a ID",
     )
+
+
+def test_output(server: ServerFixture, questions_files: QuestionsFiles) -> None:
+    """Test different output files."""
+    output = "output.json"
+    run(command=("ask", str(questions_files.questions), server.get_url(), "-o", output))
+    run_asserting_error(
+        command=("ask", str(questions_files.questions), server.get_url(), "-o", output),
+        match="already exists.",
+    )
+    assert is_json_file(output), "Output file should be JSON."
