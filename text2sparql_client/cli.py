@@ -7,6 +7,7 @@ import click
 
 from text2sparql_client.commands.ask import ask_command
 from text2sparql_client.commands.serve import serve_command
+from text2sparql_client.commands.evaluate import evaluate_command
 from text2sparql_client.context import ApplicationContext
 
 
@@ -30,3 +31,4 @@ def cli(ctx: click.core.Context, debug: bool) -> None:
 
 cli.add_command(ask_command)
 cli.add_command(serve_command)
+cli.add_command(evaluate_command)
