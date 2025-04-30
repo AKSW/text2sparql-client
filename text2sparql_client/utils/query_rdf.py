@@ -28,10 +28,6 @@ def get_json(query: str, endpoint: str, timeout: int = 180) -> dict | typing.Any
     except Exception as e:  # noqa: BLE001
         logger.info(f"-----------------------------------\nError: {e}")
         return {
-            "head": {
-                "link": [], "vars": []
-                },
-            "results": {
-                "distinct": False, "ordered": True, "bindings": []
-                }
-            }
+            "head": {"link": [], "vars": []},
+            "results": {"distinct": False, "ordered": True, "bindings": []},
+        }

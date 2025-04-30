@@ -22,11 +22,13 @@ class LanguageList(click.ParamType):
     name = "languageList"
 
     def convert(
-            self, value: str, param: click.Parameter | None, ctx: click.Context | None
-        ) -> list[type[str]]:
+        self, value: str, param: click.Parameter | None, ctx: click.Context | None
+    ) -> list[type[str]]:
         """Convert and validate a string input into a list of language codes."""
+
         def is_valid_language_list(s: str) -> bool:
             return re.match(pattern, s) is not None
+
         pattern = r"^\[\s*'(?:[a-z]{2})'\s*(,\s*'(?:[a-z]{2})'\s*)*\]$"
         languages: list[type[str]] = []
         if is_valid_language_list(value):
@@ -35,11 +37,13 @@ class LanguageList(click.ParamType):
             self.fail(f"{value!r} is not a valid language list", param, ctx)
         return languages
 
+
 def check_output_file(file: str) -> None:
     """Check if output file already exists."""
     if Path(file).exists():
         logger.error(f"Output file {file} already exists.")
         sys.exit(1)
+
 
 @click.command(name="evaluate")
 @click.argument("API_NAME", type=click.STRING)
@@ -51,7 +55,7 @@ def check_output_file(file: str) -> None:
     type=click.STRING,
     default="http://141.57.8.18:8895/sparql",
     show_default=True,
-    help="RDF endpoint URL for that dataset."
+    help="RDF endpoint URL for that dataset.",
 )
 @click.option(
     "--output",
@@ -59,7 +63,7 @@ def check_output_file(file: str) -> None:
     type=click.Path(file_okay=False, allow_dash=True),
     default="-",
     show_default=True,
-    help="Which file to save the results."
+    help="Which file to save the results.",
 )
 @click.option(
     "--languages",
@@ -67,16 +71,16 @@ def check_output_file(file: str) -> None:
     type=LanguageList(),
     default="['en']",
     show_default=True,
-    help="List of languages where the questions are represented in the QUESTIONS_FILE."
+    help="List of languages where the questions are represented in the QUESTIONS_FILE.",
 )
 def evaluate_command(  # noqa: PLR0913
-        api_name: str,
-        questions_file: TextIOWrapper,
-        response_file: TextIOWrapper,
-        endpoint: str,
-        output: str,
-        languages: list,
-    ) -> None:
+    api_name: str,
+    questions_file: TextIOWrapper,
+    response_file: TextIOWrapper,
+    endpoint: str,
+    output: str,
+    languages: list,
+) -> None:
     """Evaluate the resuls from a TEXT2SPARQL endpoint.
 
     Use a questions YAML and a response JSON with answers collected from a TEXT2SPARQL conform api.

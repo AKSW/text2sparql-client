@@ -17,7 +17,7 @@ class DBpediaDict2PytrecDict:
         """
         self.question = question
 
-    def tranform(self, sparql_dict: dict)-> dict:
+    def tranform(self, sparql_dict: dict) -> dict:
         """Transform a sparql dict into a dict to be evaluated through the pytrec library.
 
         Args:
@@ -42,6 +42,7 @@ class DBpediaDict2PytrecDict:
                         d[self.question][value[var]["value"]] = 1
         return d
 
+
 class Evaluation:
     """Computes the F1, Recall and Precision for two list considering the Pytrec_eval library.
 
@@ -62,9 +63,10 @@ class Evaluation:
         self.metrics = metrics
 
     def evaluate(
-            self, predicted_dict: dict[str, dict[str, int]],
-            ground_truth_dict: dict[str, dict[str, int]]
-        )-> dict | typing.Any:  # noqa: ANN401
+        self,
+        predicted_dict: dict[str, dict[str, int]],
+        ground_truth_dict: dict[str, dict[str, int]],
+    ) -> dict | typing.Any:  # noqa: ANN401
         """Evaluate the model considering a true dictionary and a predicted dictionary.
 
         Args:
@@ -81,7 +83,7 @@ class Evaluation:
         for measure in self.metrics:
             d[measure] = float(
                 pytrec_eval.compute_aggregated_measure(
-                    measure,[query_measures[measure] for query_measures in results.values()]
+                    measure, [query_measures[measure] for query_measures in results.values()]
                 )
             )
         results["average"] = d
