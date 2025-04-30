@@ -14,7 +14,7 @@ class DBpediaDict2PytrecDict:
         """
         self.question = question
     
-    def tranform(self, dbpedia_dict: dict)-> Dict[Dict[str]]:
+    def tranform(self, dbpedia_dict: dict)-> Dict[str, Dict[str, int]]:
         """Transform the dbpedia returned dict into a dict to be evaluated through the pytrec library.
         
         Args:
@@ -23,7 +23,7 @@ class DBpediaDict2PytrecDict:
         Returns:
            Dict[Dict[str]]: Dictionary of the predicted lists in which all items have the same weight
         """
-        d: dict[dict[str]] = {}
+        d: dict[str, dict[str, int]] = {}
         if 'boolean' in dbpedia_dict:
             bool_result = dbpedia_dict['boolean']
             d[self.question] = {}
@@ -52,7 +52,7 @@ class Evaluation:
         self.model_name = model_name
         self.metrics = metrics
 
-    def evaluate(self, predicted_dict: dict[dict[int]], ground_truth_dict: dict[dict[int]])-> Dict[Dict[float]]:
+    def evaluate(self, predicted_dict: dict[dict[int]], ground_truth_dict: dict[dict[int]])-> Dict:
         """Evaluates the model considering a true dictionary and a predicted dictionary.
         
         Args:
@@ -64,7 +64,7 @@ class Evaluation:
         """
         evaluator = pytrec_eval.RelevanceEvaluator(ground_truth_dict, self.metrics)
         results = evaluator.evaluate(predicted_dict)
-        d: dict[dict[str]] = {}
+        d: dict[str, float] = {}
         for measure in self.metrics:
             d[measure] = float(pytrec_eval.compute_aggregated_measure(measure,[query_measures[measure] for query_measures in results.values()]))
         results['average'] = d
