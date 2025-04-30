@@ -18,11 +18,11 @@ from text2sparql_client.utils.query_rdf import get_json
 class LanguageList(click.ParamType):
     name = "languageList"
 
-    def convert(self, value: str, param: click.Parameter | None, ctx: click.Context | None) -> list:
+    def convert(self, value: str, param: click.Parameter | None, ctx: click.Context | None) -> list[str]:
         def is_valid_language_list(s):
             return re.match(pattern, s) is not None
         pattern = r"^\[\s*'(?:[a-z]{2})'\s*(,\s*'(?:[a-z]{2})'\s*)*\]$"
-        languages = None
+        languages = [str]
         if is_valid_language_list(value):
             languages = ast.literal_eval(value)
         else:
@@ -86,7 +86,7 @@ def evaluate_command(
 
     for question in tqdm(test_dataset['questions']):
         for lang in languages:
-            result_true = get_json(question['query']['sparql'], question['question'][lang], endpoint=endpoint)
+            result_true = get_json(question['query']['sparql'], endpoint)
             yml_qname = f"{dataset_prefix}:{question['id']}-{lang}"
             try:
                 response_idx = [i for i, response in enumerate(response_file) if response['qname'] == yml_qname][0]
@@ -94,7 +94,7 @@ def evaluate_command(
                 print(f"\n-------\nqname {yml_qname} not found in responses\n-------\n")
                 raise e
             
-            result_predicted = get_json(response_file[response_idx]['query'], question['question'][lang], endpoint=endpoint)
+            result_predicted = get_json(response_file[response_idx]['query'], endpoint)
 
             db2pytrec = DBpediaDict2PytrecDict(f"{dataset_prefix}:{question['id']}-{lang}")
             result_predicted = db2pytrec.tranform(result_predicted)
@@ -106,7 +106,7 @@ def evaluate_command(
     evaluation = Evaluation(api_name)
     results = evaluation.evaluate(predicted, ground_truth)
 
-    print(f"Results:\n{results}")
+    print(f"\n-------\nResults: {results}\n-------\n")
 
     check_output_file(file=output)
     logger.info(f"Writing {len(results)} responses to {output if output != '-' else 'stdout'}.")

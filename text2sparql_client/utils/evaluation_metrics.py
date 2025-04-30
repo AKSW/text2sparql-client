@@ -23,7 +23,7 @@ class DBpediaDict2PytrecDict:
         Returns:
            Dict[Dict[str]]: Dictionary of the predicted lists in which all items have the same weight
         """
-        d = {}
+        d = {}  # d: dict[dict[str]]
         if 'boolean' in dbpedia_dict:
             bool_result = dbpedia_dict['boolean']
             d[self.question] = {}
@@ -36,15 +36,13 @@ class DBpediaDict2PytrecDict:
                 for value in list_results:
                     if var in value:
                         d[self.question][value[var]['value']] = 1
-            
-        
         return d
 
 class Evaluation:
     """Computes the F1, Recall and Precision for two list considering the Pytrec_eval library.
         need: pip install pytrec_eval numpy scipy
     """
-    def __init__(self, model_name: str, metrics = {'set_F', 'set_P', 'set_recall'}) -> None:
+    def __init__(self, model_name: str, metrics: str = {'set_F', 'set_P', 'set_recall'}) -> None:
         """Initializes the Evaluation class.
         
         Args:
@@ -54,7 +52,7 @@ class Evaluation:
         self.model_name = model_name
         self.metrics = metrics
 
-    def evaluate(self, predicted_dict: dict, ground_truth_dict: dict)-> Dict:
+    def evaluate(self, predicted_dict: dict, ground_truth_dict: dict)-> Dict[float]:
         """Evaluates the model considering a true dictionary and a predicted dictionary.
         
         Args:
@@ -66,8 +64,9 @@ class Evaluation:
         """
         evaluator = pytrec_eval.RelevanceEvaluator(ground_truth_dict, self.metrics)
         results = evaluator.evaluate(predicted_dict)
-        d = {}
+        d = {} # d: dict[dict[str]]
         for measure in self.metrics:
             d[measure] = float(pytrec_eval.compute_aggregated_measure(measure,[query_measures[measure] for query_measures in results.values()]))
         results['average'] = d
+
         return results

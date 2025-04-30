@@ -2,7 +2,7 @@
 
 from SPARQLWrapper import SPARQLWrapper, JSON
 
-def get_json(query, endpoint, timeout=180):
+def get_json(query: str, endpoint: str, timeout: int = 180):
     sparql = SPARQLWrapper(endpoint)
     sparql.setTimeout(timeout)
     sparql.setQuery(query)
