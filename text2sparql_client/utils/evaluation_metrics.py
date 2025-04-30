@@ -2,6 +2,7 @@
 
 import pytrec_eval
 from typing import Dict
+import typing
 
 class DBpediaDict2PytrecDict:
     """Transform the DBpedia returned dict into a dict readable to compute the metrics
@@ -52,7 +53,7 @@ class Evaluation:
         self.model_name = model_name
         self.metrics = metrics
 
-    def evaluate(self, predicted_dict: dict[str, dict[str, int]], ground_truth_dict: dict[str, dict[str, int]])-> Dict | any:
+    def evaluate(self, predicted_dict: dict[str, dict[str, int]], ground_truth_dict: dict[str, dict[str, int]])-> Dict | typing.Any:
         """Evaluates the model considering a true dictionary and a predicted dictionary.
         
         Args:
