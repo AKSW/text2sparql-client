@@ -1,25 +1,31 @@
 """evaluate command"""
 
-import json
-import yaml
-import sys
-import re
 import ast
-import click
-
+import json
+import re
+import sys
 from io import TextIOWrapper
 from pathlib import Path
+
+import click
+import yaml
 from loguru import logger
 from tqdm import tqdm
 
-from text2sparql_client.utils.evaluation_metrics import Evaluation, DBpediaDict2PytrecDict
+from text2sparql_client.utils.evaluation_metrics import DBpediaDict2PytrecDict, Evaluation
 from text2sparql_client.utils.query_rdf import get_json
 
+
 class LanguageList(click.ParamType):
+    """Custom Click parameter type for validating language list input."""
+
     name = "languageList"
 
-    def convert(self, value: str, param: click.Parameter | None, ctx: click.Context | None) -> list[type[str]]:
-        def is_valid_language_list(s):
+    def convert(
+            self, value: str, param: click.Parameter | None, ctx: click.Context | None
+        ) -> list[type[str]]:
+        """Convert and validate a string input into a list of language codes."""
+        def is_valid_language_list(s: str) -> bool:
             return re.match(pattern, s) is not None
         pattern = r"^\[\s*'(?:[a-z]{2})'\s*(,\s*'(?:[a-z]{2})'\s*)*\]$"
         languages: list[type[str]] = []
@@ -63,50 +69,52 @@ def check_output_file(file: str) -> None:
     show_default=True,
     help="List of languages where the questions are represented in the QUESTIONS_FILE."
 )
-def evaluate_command(
-    api_name: str,
-    questions_file: TextIOWrapper,
-    response_file: TextIOWrapper,
-    endpoint: str,
-    output: str,
-    languages: list,
-) -> None:
-    """Evaluate the resuls from a TEXT2SPARQL endpoint
-    
-    Use a questions YAML and a response JSON with answers collected from a TEXT2SPARQL conform api.
-    This command will create a JSON file with the metric values using the pytrec_eval library."""
+def evaluate_command(  # noqa: PLR0913
+        api_name: str,
+        questions_file: TextIOWrapper,
+        response_file: TextIOWrapper,
+        endpoint: str,
+        output: str,
+        languages: list,
+    ) -> None:
+    """Evaluate the resuls from a TEXT2SPARQL endpoint.
 
+    Use a questions YAML and a response JSON with answers collected from a TEXT2SPARQL conform api.
+    This command will create a JSON file with the metric values using the pytrec_eval library.
+    """
     test_dataset = yaml.safe_load(questions_file)
     json_file = json.load(response_file)
 
-    dataset_prefix = test_dataset['dataset']['prefix']
+    dataset_prefix = test_dataset["dataset"]["prefix"]
 
     ground_truth = {}
     predicted = {}
 
-    for question in tqdm(test_dataset['questions']):
+    for question in tqdm(test_dataset["questions"]):
         for lang in languages:
-            result_true = get_json(question['query']['sparql'], endpoint)
+            result_true = get_json(question["query"]["sparql"], endpoint)
             yml_qname = f"{dataset_prefix}:{question['id']}-{lang}"
             try:
-                response_idx = [i for i, response in enumerate(json_file) if response['qname'] == yml_qname][0]
-            except IndexError as e:
-                print(f"\n-------\nqname {yml_qname} not found in responses\n-------\n")
-                raise e
-            
-            result_predicted = get_json(json_file[response_idx]['query'], endpoint)
+                response_idx = next(
+                    i for i, response in enumerate(json_file) if response["qname"] == yml_qname
+                )
+            except IndexError:
+                logger.info(f"\n-------\nqname {yml_qname} not found in responses\n-------\n")
+                raise
+
+            result_predicted = get_json(json_file[response_idx]["query"], endpoint)
 
             db2pytrec = DBpediaDict2PytrecDict(f"{dataset_prefix}:{question['id']}-{lang}")
             result_predicted = db2pytrec.tranform(result_predicted)
             result_true = db2pytrec.tranform(result_true)
 
             ground_truth.update(result_true)
-            predicted.update(result_predicted) 
-    
+            predicted.update(result_predicted)
+
     evaluation = Evaluation(api_name)
     results = evaluation.evaluate(predicted, ground_truth)
 
-    print(f"\n-------\nResults: {results}\n-------\n")
+    logger.info(f"\n-------\nResults: {results}\n-------\n")
 
     check_output_file(file=output)
     logger.info(f"Writing {len(results)} responses to {output if output != '-' else 'stdout'}.")
