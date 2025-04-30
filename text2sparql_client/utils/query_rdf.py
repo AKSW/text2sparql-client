@@ -1,10 +1,12 @@
 """query RDF endpoing"""
 
+import typing
+
 from loguru import logger
 from SPARQLWrapper import JSON, SPARQLWrapper
 
 
-def get_json(query: str, endpoint: str, timeout: int = 180) -> dict:
+def get_json(query: str, endpoint: str, timeout: int = 180) -> dict | typing.Any:  # noqa: ANN401
     """Execute a SPARQL query and return the results as JSON.
 
     Args:
