@@ -52,7 +52,7 @@ class Evaluation:
         self.model_name = model_name
         self.metrics = metrics
 
-    def evaluate(self, predicted_dict: dict[dict[int]], ground_truth_dict: dict[dict[int]])-> Dict:
+    def evaluate(self, predicted_dict: dict[str, dict[str, int]], ground_truth_dict: dict[str, dict[str, int]])-> Dict | any:
         """Evaluates the model considering a true dictionary and a predicted dictionary.
         
         Args:

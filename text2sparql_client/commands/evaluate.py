@@ -22,7 +22,7 @@ class LanguageList(click.ParamType):
         def is_valid_language_list(s):
             return re.match(pattern, s) is not None
         pattern = r"^\[\s*'(?:[a-z]{2})'\s*(,\s*'(?:[a-z]{2})'\s*)*\]$"
-        languages: type[str] = []
+        languages: list[type[str]] = []
         if is_valid_language_list(value):
             languages = ast.literal_eval(value)
         else:
