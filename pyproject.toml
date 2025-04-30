@@ -20,6 +20,7 @@ pyyaml = "^6.0.2"
 pydantic-settings = "^2.8.1"
 requests = "^2.32.3"
 loguru = "^0.7.3"
+tqdm = "^4.67.1"
 
 [tool.poetry.scripts]
 text2sparql = 'text2sparql_client.cli:cli'
