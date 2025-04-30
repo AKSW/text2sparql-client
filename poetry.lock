@@ -1155,6 +1155,17 @@ files = [
 cli = ["click (>=5.0)"]
 
 [[package]]
+name = "pytrec-eval"
+version = "0.5"
+description = "Provides Python bindings for popular Information Retrieval measures implemented within trec_eval."
+optional = false
+python-versions = ">=3"
+groups = ["main"]
+files = [
+    {file = "pytrec_eval-0.5.tar.gz", hash = "sha256:d9eb4616e7d6b73bf1b5ba4c2c4916e88124e790b53fd61610c30158999e7bde"},
+]
+
+[[package]]
 name = "pyyaml"
 version = "6.0.2"
 description = "YAML parser and emitter for Python"
@@ -1527,4 +1538,4 @@ dev = ["black (>=19.3b0) ; python_version >= \"3.6\"", "pytest (>=4.6.2)"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11, ^3"
-content-hash = "00d6ebb9b752586a909dd49e2d80cd0fb97cc9602484e2d590a1726426f61dca"
+content-hash = "62a29d6ffb46876def600753a5d298e29e1345ae9807b7d97b04519b366da43f"

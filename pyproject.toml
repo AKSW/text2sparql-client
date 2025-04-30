@@ -21,6 +21,7 @@ pydantic-settings = "^2.8.1"
 requests = "^2.32.3"
 loguru = "^0.7.3"
 tqdm = "^4.67.1"
+pytrec-eval = "^0.5"
 
 [tool.poetry.scripts]
 text2sparql = 'text2sparql_client.cli:cli'
