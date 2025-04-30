@@ -24,6 +24,7 @@ tqdm = "^4.67.1"
 pytrec-eval = "^0.5"
 numpy = "^1.15.1"
 scipy = "^1.1.0"
+SPARQLWrapper = "^2.0.0"
 
 [tool.poetry.scripts]
 text2sparql = 'text2sparql_client.cli:cli'
