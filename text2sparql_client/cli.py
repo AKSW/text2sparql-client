@@ -6,8 +6,8 @@ from sys import version_info
 import click
 
 from text2sparql_client.commands.ask import ask_command
-from text2sparql_client.commands.serve import serve_command
 from text2sparql_client.commands.evaluate import evaluate_command
+from text2sparql_client.commands.serve import serve_command
 from text2sparql_client.context import ApplicationContext
 
 
