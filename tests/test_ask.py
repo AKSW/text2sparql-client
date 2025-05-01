@@ -37,3 +37,11 @@ def test_output(server: ServerFixture, questions_files: QuestionsFiles) -> None:
         match="already exists.",
     )
     assert is_json_file(output), "Output file should be JSON."
+
+
+def test_cached_response(server: ServerFixture, questions_files: QuestionsFiles) -> None:
+    """Test cached response."""
+    command = ("ask", str(questions_files.questions), server.get_url())
+    assert "Cached response found." not in run(command=command).stdout
+    assert "Cached response found." in run(command=command).stdout
+    assert "Cached response found." not in run(command=(*command, "--no-cache")).stdout

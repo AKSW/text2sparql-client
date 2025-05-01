@@ -2,16 +2,30 @@
 
 from datetime import UTC, datetime
 
-from requests import get
+from requests import Response, get
 
 from text2sparql_client.database import Database
 from text2sparql_client.models.response import ResponseMessage
 
 
-def text2sparql(
-    endpoint: str, dataset: str, question: str, timeout: int, database: Database
+def response_to_response_message(endpoint: str, response: Response) -> ResponseMessage:
+    """Create a response message"""
+    response_message = ResponseMessage(**response.json())
+    response_message.endpoint = endpoint
+    return response_message
+
+
+def text2sparql(  # noqa: PLR0913
+    endpoint: str, dataset: str, question: str, timeout: int, database: Database, cache: bool
 ) -> ResponseMessage:
     """Text to SPARQL Request."""
+    if cache and (
+        cached_response := database.get_response(
+            endpoint=endpoint, dataset=dataset, question=question
+        )
+    ):
+        return response_to_response_message(endpoint=endpoint, response=cached_response)
+
     timestamp = str(datetime.now(tz=UTC))
     database.register_question(
         time=timestamp,
@@ -40,6 +54,4 @@ def text2sparql(
             time=timestamp, endpoint=endpoint, dataset=dataset, question=question, exception=error
         )
         raise
-    response_message = ResponseMessage(**response.json())
-    response_message.endpoint = endpoint
-    return response_message
+    return response_to_response_message(endpoint=endpoint, response=response)
