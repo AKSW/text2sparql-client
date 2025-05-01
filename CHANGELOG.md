@@ -5,18 +5,19 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/)
 
-## [Unreleased]
-
-### Changed
-
-- ask command
-  - returns cached response if possible
+## [1.4.0] 2025-05-01
 
 ### Added
 
 - ask command
   - new flag option `--cache/--no-cache` to control cache behaviour
   - returning cached reponses is enabled per default
+
+### Changed
+
+- ask command
+  - returns cached response if possible
+
 
 ## [1.3.0] 2025-05-01
 
