@@ -15,7 +15,7 @@ def response_to_response_message(endpoint: str, response: Response) -> ResponseM
     return response_message
 
 
-def text2sparql(
+def text2sparql(  # noqa: PLR0913
     endpoint: str, dataset: str, question: str, timeout: int, database: Database, cache: bool
 ) -> ResponseMessage:
     """Text to SPARQL Request."""

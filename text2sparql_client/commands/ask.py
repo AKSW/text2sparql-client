@@ -54,7 +54,7 @@ def check_output_file(file: str) -> None:
     show_default=True,
     help="If possible, return a cached response from the answers database.",
 )
-def ask_command(
+def ask_command(  # noqa: PLR0913
     questions_file: TextIOWrapper,
     url: str,
     answers_db: str,
