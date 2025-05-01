@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/)
 
+## [1.3.0] 2025-05-01
+
+### Added
+
+- evaluate command
+  - takes an API_NAME, a QUESTIONS_FILE and a RESPONSES FILE
+  - it uses pytrec_eval as the engines for the metrics calculation
+  - outputs values for each questions and an average as a JSON file
+  - options: `--output`, `--endpoint` and `--languages`
+
+
 ## [1.2.0] 2025-04-22
 
 ### Added
@@ -12,6 +23,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 - ask command
   - `--output` / `-o` with default value `-` for stdout
 - proper test suite
+
 
 ## [1.1.0] 2025-04-18
 
@@ -23,6 +35,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 - more questions file validation
   - break if non-unique IDs
   - break if only a few quesions have IDs
+
 
 ## [1.0.1] 2025-04-15
 
