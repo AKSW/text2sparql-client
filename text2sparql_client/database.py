@@ -4,6 +4,7 @@ import pickle
 import sqlite3
 from pathlib import Path
 
+from loguru import logger
 from requests import Response
 
 
@@ -87,3 +88,32 @@ class Database:
                     question,
                 ),
             )
+
+    def get_response(self, endpoint: str, dataset: str, question: str) -> Response | None:
+        """Get a response from the database or None if not found"""
+        with self.connection as connection:
+            cursor = connection.cursor()
+            cursor.execute(
+                """
+                SELECT response from responses
+                WHERE endpoint=?
+                AND dataset=?
+                AND question=?
+                AND response is not null
+                AND exception is null
+                ORDER BY time DESC
+                LIMIT 1
+                """,
+                (
+                    endpoint,
+                    dataset,
+                    question,
+                ),
+            )
+            row = cursor.fetchone()
+            if row is None:
+                logger.debug("No cached response found.")
+                return None
+            logger.info("Cached response found.")
+            response: Response = pickle.loads(row[0])  # noqa: S301
+            return response

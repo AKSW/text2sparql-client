@@ -48,12 +48,19 @@ def check_output_file(file: str) -> None:
     show_default=True,
     help="Save JSON output to this file.",
 )
+@click.option(
+    "--cache/--no-cache",
+    default=True,
+    show_default=True,
+    help="If possible, return a cached response from the answers database.",
+)
 def ask_command(
     questions_file: TextIOWrapper,
     url: str,
     answers_db: str,
     timeout: int,
     output: str,
+    cache: bool,
 ) -> None:
     """Query a TEXT2SPARQL endpoint
 
@@ -75,6 +82,7 @@ def ask_command(
                     question=question,
                     database=database,
                     timeout=timeout,
+                    cache=cache,
                 )
                 answer: dict[str, str] = response.model_dump()
                 if question_section.id and file_model.dataset.prefix:
