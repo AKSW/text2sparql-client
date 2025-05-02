@@ -101,6 +101,7 @@ class ResponsesFiles:
 
     responses = FIXTURE_DIR / "responses.json"
 
+
 @pytest.fixture
 def responses_files() -> ResponsesFiles:
     """Provide FixtureData"""
