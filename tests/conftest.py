@@ -99,4 +99,4 @@ def is_json_file(file: str) -> bool:
 class ResponsesFiles:
     """Fixture response data for test"""
 
-    responses = FIXTURE_DIR / "responses.yml"
+    responses = FIXTURE_DIR / "responses.json"
