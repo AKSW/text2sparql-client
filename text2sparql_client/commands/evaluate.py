@@ -118,9 +118,7 @@ def evaluate_command(  # noqa: PLR0913
     evaluation = Evaluation(api_name)
     results = evaluation.evaluate(predicted, ground_truth)
 
-    logger.info(f"\n-------\nResults: {results}\n-------\n")
-
     check_output_file(file=output)
-    logger.info(f"Writing {len(results)} responses to {output if output != '-' else 'stdout'}.")
+    logger.info(f"Writing {len(results)} results to {output if output != '-' else 'stdout'}.")
     with click.open_file(filename=output, mode="w", encoding="UTF-8") as file:
         json.dump(results, file, indent=2)
