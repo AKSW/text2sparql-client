@@ -17,8 +17,13 @@ questions:
   - id: 2
     question:
       de: Was ist der Sinn des Lebens?
+    query:
+      sparql: |
+        select distinct ?Concept where {[] a ?Concept} LIMIT 100
 
   - id: 3
     question:
       de: Wieviele Einwohner hat Leipzig?
-
+    query:
+      sparql: |
+        select distinct ?Concept where {[] a ?Concept} LIMIT 100

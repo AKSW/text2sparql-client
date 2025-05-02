@@ -41,7 +41,7 @@ def test_output_evaluation(
         command=(
             "evaluate",
             "api_name",
-            str(questions_files.questions),
+            str(questions_files.with_ids),
             str(responses_files.responses),
             "-o",
             output,
@@ -51,7 +51,7 @@ def test_output_evaluation(
         command=(
             "evaluate",
             "api_name",
-            str(questions_files.questions),
+            str(questions_files.with_ids),
             str(responses_files.responses),
             "-o",
             output,
