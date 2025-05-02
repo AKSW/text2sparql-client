@@ -10,6 +10,9 @@ questions:
     question:
       en: In which department is Ms. Müller?
       de: In welcher Abteilung ist Frau Müller?
+    query:
+      sparql: |
+        select distinct ?Concept where {[] a ?Concept} LIMIT 100
 
   - id: 2
     question:

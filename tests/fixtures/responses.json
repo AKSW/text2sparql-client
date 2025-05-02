@@ -1,0 +1,10 @@
+[
+    {
+      "dataset": "https://text2sparql.aksw.org/2025/corporate/",
+      "question": "In which department is Ms. Müller?",
+      "query": "select distinct ?Concept where {[] a ?Concept} LIMIT 100",
+      "endpoint": "http://127.0.0.1:8000",
+      "qname": "cd25:1-en",
+      "uri": "https://text2sparql.aksw.org/2025/corporate/1-en"
+    }
+]

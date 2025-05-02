@@ -94,3 +94,8 @@ def is_json_file(file: str) -> bool:
     except json.JSONDecodeError:
         return False
     return True
+
+class ResponsesFiles:
+    """Fixture response data for test"""
+
+    responses = FIXTURE_DIR / "responses.yml"
