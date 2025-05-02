@@ -95,6 +95,7 @@ def is_json_file(file: str) -> bool:
         return False
     return True
 
+
 class ResponsesFiles:
     """Fixture response data for test"""
 
