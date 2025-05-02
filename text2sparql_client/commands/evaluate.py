@@ -60,7 +60,7 @@ def check_output_file(file: str) -> None:
 @click.option(
     "--output",
     "-o",
-    type=click.Path(allow_dash=True),
+    type=click.Path(allow_dash=True, dir_okay=False),
     default="-",
     show_default=True,
     help="Which file to save the results.",

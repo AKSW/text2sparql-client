@@ -16,6 +16,7 @@ questions:
 
   - id: 2
     question:
+      en: What is the meaning of life?
       de: Was ist der Sinn des Lebens?
     query:
       sparql: |
@@ -23,6 +24,7 @@ questions:
 
   - id: 3
     question:
+      en: How many inhabitants does Leipzig have?
       de: Wieviele Einwohner hat Leipzig?
     query:
       sparql: |
