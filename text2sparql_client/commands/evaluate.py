@@ -60,7 +60,7 @@ def check_output_file(file: str) -> None:
 @click.option(
     "--output",
     "-o",
-    type=click.Path(file_okay=False, allow_dash=True),
+    type=click.Path(allow_dash=True, dir_okay=False),
     default="-",
     show_default=True,
     help="Which file to save the results.",
@@ -76,7 +76,7 @@ def check_output_file(file: str) -> None:
 def evaluate_command(  # noqa: PLR0913
     api_name: str,
     questions_file: TextIOWrapper,
-    response_file: TextIOWrapper,
+    responses_file: TextIOWrapper,
     endpoint: str,
     output: str,
     languages: list,
@@ -87,7 +87,7 @@ def evaluate_command(  # noqa: PLR0913
     This command will create a JSON file with the metric values using the pytrec_eval library.
     """
     test_dataset = yaml.safe_load(questions_file)
-    json_file = json.load(response_file)
+    json_file = json.load(responses_file)
 
     dataset_prefix = test_dataset["dataset"]["prefix"]
 
@@ -118,9 +118,7 @@ def evaluate_command(  # noqa: PLR0913
     evaluation = Evaluation(api_name)
     results = evaluation.evaluate(predicted, ground_truth)
 
-    logger.info(f"\n-------\nResults: {results}\n-------\n")
-
     check_output_file(file=output)
-    logger.info(f"Writing {len(results)} responses to {output if output != '-' else 'stdout'}.")
+    logger.info(f"Writing {len(results)} results to {output if output != '-' else 'stdout'}.")
     with click.open_file(filename=output, mode="w", encoding="UTF-8") as file:
         json.dump(results, file, indent=2)

@@ -1,0 +1,26 @@
+[
+    {
+      "dataset": "https://text2sparql.aksw.org/2025/corporate/",
+      "question": "In which department is Ms. Müller?",
+      "query": "select distinct ?Concept where {[] a ?Concept} LIMIT 100",
+      "endpoint": "http://127.0.0.1:8000",
+      "qname": "cd25:1-en",
+      "uri": "https://text2sparql.aksw.org/2025/corporate/1-en"
+    },
+    {
+        "dataset": "https://text2sparql.aksw.org/2025/corporate/",
+        "question": "What is the meaning of life?",
+        "query": "select distinct ?Concept where {[] a ?Concept} LIMIT 100",
+        "endpoint": "http://127.0.0.1:8000",
+        "qname": "cd25:2-en",
+        "uri": "https://text2sparql.aksw.org/2025/corporate/2-en"
+    },
+    {
+        "dataset": "https://text2sparql.aksw.org/2025/corporate/",
+        "question": "How many inhabitants does Leipzig have?",
+        "query": "select distinct ?Concept where {[] a ?Concept} LIMIT 100",
+        "endpoint": "http://127.0.0.1:8000",
+        "qname": "cd25:3-en",
+        "uri": "https://text2sparql.aksw.org/2025/corporate/3-en"
+    }
+]

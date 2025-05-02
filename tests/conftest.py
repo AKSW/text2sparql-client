@@ -94,3 +94,15 @@ def is_json_file(file: str) -> bool:
     except json.JSONDecodeError:
         return False
     return True
+
+
+class ResponsesFiles:
+    """Fixture response data for test"""
+
+    responses = FIXTURE_DIR / "responses.json"
+
+
+@pytest.fixture
+def responses_files() -> ResponsesFiles:
+    """Provide FixtureData"""
+    return ResponsesFiles()

@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/)
 
+## [1.4.1] 2025-05-02
+
+### Added
+
+- evaluate command
+  - tests for the evaluate command with a generic response file
+
+### Changed
+
+- evaluate command
+  - fixed bug with reponse file variable
+
 ## [1.4.0] 2025-05-01
 
 ### Added
