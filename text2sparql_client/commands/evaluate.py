@@ -98,15 +98,18 @@ def evaluate_command(  # noqa: PLR0913
         for lang in languages:
             result_true = get_json(question["query"]["sparql"], endpoint)
             yml_qname = f"{dataset_prefix}:{question['id']}-{lang}"
+
             try:
                 response_idx = next(
                     i for i, response in enumerate(json_file) if response["qname"] == yml_qname
                 )
-            except IndexError:
+                result_predicted = get_json(json_file[response_idx]["query"], endpoint)
+            except StopIteration:
                 logger.info(f"\n-------\nqname {yml_qname} not found in responses\n-------\n")
-                raise
-
-            result_predicted = get_json(json_file[response_idx]["query"], endpoint)
+                result_predicted = {
+                    "head": {"link": [], "vars": []},
+                    "results": {"distinct": False, "ordered": True, "bindings": []},
+                }
 
             db2pytrec = DBpediaDict2PytrecDict(f"{dataset_prefix}:{question['id']}-{lang}")
             result_predicted = db2pytrec.tranform(result_predicted)

@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/)
 
+## [1.4.2] 2025-05-05
+
+### Changed
+
+- evaluate command
+  - changed approach to not break results but to consider empty output from SPARQL when response is not available in the response file
+
 ## [1.4.1] 2025-05-02
 
 ### Added
