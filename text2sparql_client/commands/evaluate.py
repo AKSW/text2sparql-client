@@ -13,6 +13,11 @@ from loguru import logger
 from tqdm import tqdm
 
 from text2sparql_client.utils.evaluation_metrics import DBpediaDict2PytrecDict, Evaluation
+from text2sparql_client.utils.order_matters import (
+    combine_metrics,
+    filter_answer_dict,
+    non_destructive_update,
+)
 from text2sparql_client.utils.query_rdf import get_json
 
 
@@ -73,6 +78,14 @@ def check_output_file(file: str) -> None:
     show_default=True,
     help="List of languages where the questions are represented in the QUESTIONS_FILE.",
 )
+@click.option(
+    "--order_metric",
+    "-m",
+    type=click.STRING,
+    default="ndcg",
+    show_default=True,
+    help="Performance metric to be used for questions flagged with RESULT_ORDER_MATTERS.",
+)
 def evaluate_command(  # noqa: PLR0913
     api_name: str,
     questions_file: TextIOWrapper,
@@ -80,6 +93,7 @@ def evaluate_command(  # noqa: PLR0913
     endpoint: str,
     output: str,
     languages: list,
+    order_metric: str,
 ) -> None:
     """Evaluate the resuls from a TEXT2SPARQL endpoint.
 
@@ -93,6 +107,8 @@ def evaluate_command(  # noqa: PLR0913
 
     ground_truth = {}
     predicted = {}
+
+    order_required = []
 
     for question in tqdm(test_dataset["questions"]):
         for lang in languages:
@@ -118,8 +134,23 @@ def evaluate_command(  # noqa: PLR0913
             ground_truth.update(result_true)
             predicted.update(result_predicted)
 
+            if "features" in question:  # noqa: SIM102
+                if "RESULT_ORDER_MATTERS" in question["features"]:
+                    order_required.append(f"{dataset_prefix}:{question['id']}-{lang}")
+
     evaluation = Evaluation(api_name)
     results = evaluation.evaluate(predicted, ground_truth)
+
+    if order_required:
+        filtered_ground_truth = filter_answer_dict(ground_truth, order_required)
+        filtered_predicted = filter_answer_dict(predicted, order_required)
+        filtered_results = Evaluation(api_name, metrics={order_metric}).evaluate(
+            filtered_predicted, filtered_ground_truth
+        )
+
+        non_destructive_update(results, filtered_results, order_metric)
+
+        combine_metrics(results, order_metric)
 
     check_output_file(file=output)
     logger.info(f"Writing {len(results)} results to {output if output != '-' else 'stdout'}.")

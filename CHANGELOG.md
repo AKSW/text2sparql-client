@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/)
 
+## [1.5.0] 2025-05-19
+
+### Added
+
+- evaluate command
+  - optional argument to obtain desired metric for computing questions flagged RESULT_ORDER_MATTERS
+  - creates results with desired metric for questions flagged RESULT_ORDER_MATTERS
+  - creates a new value output that combines "set_F" with the ordered metric when present in a single new metric for the average as a new argument
+
 ## [1.4.2] 2025-05-05
 
 ### Changed
@@ -22,7 +31,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 ### Changed
 
 - evaluate command
-  - fixed bug with reponse file variable
+  - fixed bug with response file variable
 
 ## [1.4.0] 2025-05-01
 
