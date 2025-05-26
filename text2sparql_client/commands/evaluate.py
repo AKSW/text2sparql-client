@@ -71,6 +71,22 @@ def check_output_file(file: str) -> None:
     help="Which file to save the results.",
 )
 @click.option(
+    "--true_result",
+    "-ts",
+    type=click.Path(allow_dash=True, dir_okay=False),
+    default="-",
+    show_default=True,
+    help="Which file to save the true result set output using the test queries.",
+)
+@click.option(
+    "--pred_result",
+    "-ps",
+    type=click.Path(allow_dash=True, dir_okay=False),
+    default="-",
+    show_default=True,
+    help="Which file to save the predicted result set using the api generated queries.",
+)
+@click.option(
     "--languages",
     "-l",
     type=LanguageList(),
@@ -92,6 +108,8 @@ def evaluate_command(  # noqa: PLR0913
     responses_file: TextIOWrapper,
     endpoint: str,
     output: str,
+    true_result: str,
+    pred_result: str,
     languages: list,
     order_metric: str,
 ) -> None:
@@ -140,6 +158,20 @@ def evaluate_command(  # noqa: PLR0913
 
     evaluation = Evaluation(api_name)
     results = evaluation.evaluate(predicted, ground_truth)
+
+    check_output_file(file=true_result)
+    logger.info(
+        f"Writing {len(ground_truth)} results to {true_result if true_result != '-' else 'stdout'}."
+    )
+    with click.open_file(filename=true_result, mode="w", encoding="UTF-8") as file:
+        json.dump(ground_truth, file, indent=2)
+
+    check_output_file(file=pred_result)
+    logger.info(
+        f"Writing {len(predicted)} results to {pred_result if pred_result != '-' else 'stdout'}."
+    )
+    with click.open_file(filename=pred_result, mode="w", encoding="UTF-8") as file:
+        json.dump(predicted, file, indent=2)
 
     if order_required:
         filtered_ground_truth = filter_answer_dict(ground_truth, order_required)
