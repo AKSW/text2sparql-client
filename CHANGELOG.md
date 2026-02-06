@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/)
 
+## [1.5.1] 2025-05-26
+
+### Added
+
+- evaluate command
+  - optional argument to obtain true and predicted result set outputs
+
 ## [1.5.0] 2025-05-19
 
 ### Added
