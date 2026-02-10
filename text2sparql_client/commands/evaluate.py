@@ -1,46 +1,54 @@
 """evaluate command"""
 
-import ast
 import json
-import re
+import statistics
 import sys
 from io import TextIOWrapper
 from pathlib import Path
 
 import click
-import yaml
 from loguru import logger
-from tqdm import tqdm
 
-from text2sparql_client.utils.evaluation_metrics import DBpediaDict2PytrecDict, Evaluation
-from text2sparql_client.utils.order_matters import (
-    combine_metrics,
+from text2sparql_client.utils.evaluation_metrics import (
+    Evaluation,
+    combine_averages,
     filter_answer_dict,
     non_destructive_update,
 )
-from text2sparql_client.utils.query_rdf import get_json
+from text2sparql_client.utils.language_list import LanguageList
 
 
-class LanguageList(click.ParamType):
-    """Custom Click parameter type for validating language list input."""
+def order_matters(
+    api_name: str, true_set: dict, pred_set: dict, results: dict, order_metric: str
+) -> None:
+    """Check if order matters for any of the questions and calculate the order_metric if necessary.
 
-    name = "languageList"
+    Also generates the combined metric defined for text2sparql.
+    """
+    order_eval = Evaluation(api_name, metrics={order_metric})
+    order_required = true_set["order_required"]
+    filtered_predicted = filter_answer_dict(pred_set, order_required)
+    filtered_true = filter_answer_dict(true_set, order_required)
+    filtered_results = order_eval.evaluate(filtered_predicted, filtered_true)
 
-    def convert(
-        self, value: str, param: click.Parameter | None, ctx: click.Context | None
-    ) -> list[type[str]]:
-        """Convert and validate a string input into a list of language codes."""
+    non_destructive_update(results, filtered_results, order_metric)
+    combine_averages(results, order_metric)
 
-        def is_valid_language_list(s: str) -> bool:
-            return re.match(pattern, s) is not None
 
-        pattern = r"^\[\s*'(?:[a-z]{2})'\s*(,\s*'(?:[a-z]{2})'\s*)*\]$"
-        languages: list[type[str]] = []
-        if is_valid_language_list(value):
-            languages = ast.literal_eval(value)
-        else:
-            self.fail(f"{value!r} is not a valid language list", param, ctx)
-        return languages
+def generate_language_averages(results: dict, languages: list[str], metrics: list[str]) -> None:
+    """Generate average metrics across all questions for each metric and language."""
+    language_averages = {language: {metric: [] for metric in metrics} for language in languages}
+    for key, value in results.items():
+        for metric in metrics:
+            if metric in value:
+                for language in languages:
+                    if language in key:
+                        language_averages[language][metric].append(value[metric])
+    for language in languages:
+        results[f"average-{language}"] = {
+            metric: statistics.fmean(scores)
+            for metric, scores in language_averages[language].items()
+        }
 
 
 def check_output_file(file: str) -> None:
@@ -52,16 +60,8 @@ def check_output_file(file: str) -> None:
 
 @click.command(name="evaluate")
 @click.argument("API_NAME", type=click.STRING)
-@click.argument("QUESTIONS_FILE", type=click.File())
-@click.argument("RESPONSES_FILE", type=click.File())
-@click.option(
-    "--endpoint",
-    "-e",
-    type=click.STRING,
-    default="http://141.57.8.18:8895/sparql",
-    show_default=True,
-    help="RDF endpoint URL for that dataset.",
-)
+@click.argument("TRUE_SET", type=click.File())
+@click.argument("PRED_SET", type=click.File())
 @click.option(
     "--output",
     "-o",
@@ -71,30 +71,6 @@ def check_output_file(file: str) -> None:
     help="Which file to save the results.",
 )
 @click.option(
-    "--true_result",
-    "-ts",
-    type=click.Path(allow_dash=True, dir_okay=False),
-    default="-",
-    show_default=True,
-    help="Which file to save the true result set output using the test queries.",
-)
-@click.option(
-    "--pred_result",
-    "-ps",
-    type=click.Path(allow_dash=True, dir_okay=False),
-    default="-",
-    show_default=True,
-    help="Which file to save the predicted result set using the api generated queries.",
-)
-@click.option(
-    "--languages",
-    "-l",
-    type=LanguageList(),
-    default="['en']",
-    show_default=True,
-    help="List of languages where the questions are represented in the QUESTIONS_FILE.",
-)
-@click.option(
     "--order_metric",
     "-m",
     type=click.STRING,
@@ -102,87 +78,43 @@ def check_output_file(file: str) -> None:
     show_default=True,
     help="Performance metric to be used for questions flagged with RESULT_ORDER_MATTERS.",
 )
+@click.option(
+    "--languages",
+    "-l",
+    type=LanguageList(),
+    default="['en']",
+    show_default=True,
+    help="List of languages to generate metrics results separately.",
+)
 def evaluate_command(  # noqa: PLR0913
     api_name: str,
-    questions_file: TextIOWrapper,
-    responses_file: TextIOWrapper,
-    endpoint: str,
+    true_set: TextIOWrapper,
+    pred_set: TextIOWrapper,
     output: str,
-    true_result: str,
-    pred_result: str,
-    languages: list,
     order_metric: str,
+    languages: list[type[str]],
 ) -> None:
     """Evaluate the resuls from a TEXT2SPARQL endpoint.
 
     Use a questions YAML and a response JSON with answers collected from a TEXT2SPARQL conform api.
     This command will create a JSON file with the metric values using the pytrec_eval library.
     """
-    test_dataset = yaml.safe_load(questions_file)
-    json_file = json.load(responses_file)
+    true_set = json.load(true_set)
+    pred_set = json.load(pred_set)
 
-    dataset_prefix = test_dataset["dataset"]["prefix"]
+    evaluator = Evaluation(api_name)
+    results = evaluator.evaluate(pred_set, true_set)
 
-    ground_truth = {}
-    predicted = {}
+    if "order_required" in true_set:
+        order_matters(api_name, true_set, pred_set, results, order_metric)
 
-    order_required = []
-
-    for question in tqdm(test_dataset["questions"]):
-        for lang in languages:
-            result_true = get_json(question["query"]["sparql"], endpoint)
-            yml_qname = f"{dataset_prefix}:{question['id']}-{lang}"
-
-            try:
-                response_idx = next(
-                    i for i, response in enumerate(json_file) if response["qname"] == yml_qname
-                )
-                result_predicted = get_json(json_file[response_idx]["query"], endpoint)
-            except StopIteration:
-                logger.info(f"\n-------\nqname {yml_qname} not found in responses\n-------\n")
-                result_predicted = {
-                    "head": {"link": [], "vars": []},
-                    "results": {"distinct": False, "ordered": True, "bindings": []},
-                }
-
-            db2pytrec = DBpediaDict2PytrecDict(f"{dataset_prefix}:{question['id']}-{lang}")
-            result_predicted = db2pytrec.tranform(result_predicted)
-            result_true = db2pytrec.tranform(result_true)
-
-            ground_truth.update(result_true)
-            predicted.update(result_predicted)
-
-            if "features" in question:  # noqa: SIM102
-                if "RESULT_ORDER_MATTERS" in question["features"]:
-                    order_required.append(f"{dataset_prefix}:{question['id']}-{lang}")
-
-    evaluation = Evaluation(api_name)
-    results = evaluation.evaluate(predicted, ground_truth)
-
-    check_output_file(file=true_result)
-    logger.info(
-        f"Writing {len(ground_truth)} results to {true_result if true_result != '-' else 'stdout'}."
-    )
-    with click.open_file(filename=true_result, mode="w", encoding="UTF-8") as file:
-        json.dump(ground_truth, file, indent=2)
-
-    check_output_file(file=pred_result)
-    logger.info(
-        f"Writing {len(predicted)} results to {pred_result if pred_result != '-' else 'stdout'}."
-    )
-    with click.open_file(filename=pred_result, mode="w", encoding="UTF-8") as file:
-        json.dump(predicted, file, indent=2)
-
-    if order_required:
-        filtered_ground_truth = filter_answer_dict(ground_truth, order_required)
-        filtered_predicted = filter_answer_dict(predicted, order_required)
-        filtered_results = Evaluation(api_name, metrics={order_metric}).evaluate(
-            filtered_predicted, filtered_ground_truth
-        )
-
-        non_destructive_update(results, filtered_results, order_metric)
-
-        combine_metrics(results, order_metric)
+    if len(languages) > 1:
+        all_metrics = list(evaluator.metrics)
+        if order_metric not in all_metrics:
+            all_metrics.append(order_metric)
+        generate_language_averages(results, languages, all_metrics)
+        for language in languages:
+            combine_averages(results, order_metric, average_field=f"average-{language}")
 
     check_output_file(file=output)
     logger.info(f"Writing {len(results)} results to {output if output != '-' else 'stdout'}.")
