@@ -18,26 +18,28 @@ from text2sparql_client.utils.evaluation_metrics import (
 from text2sparql_client.utils.language_list import LanguageList
 
 
-def order_matters(
-    api_name: str, true_set: dict, pred_set: dict, results: dict, order_metric: str
-) -> None:
+def order_matters(api_name: str, true_set: dict, pred_set: dict, results: dict) -> None:
     """Check if order matters for any of the questions and calculate the order_metric if necessary.
 
     Also generates the combined metric defined for text2sparql.
     """
-    order_eval = Evaluation(api_name, metrics={order_metric})
+    order_eval = Evaluation(api_name, metrics={"ndcg"})
     order_required = true_set["order_required"]
     filtered_predicted = filter_answer_dict(pred_set, order_required)
     filtered_true = filter_answer_dict(true_set, order_required)
     filtered_results = order_eval.evaluate(filtered_predicted, filtered_true)
 
-    non_destructive_update(results, filtered_results, order_metric)
-    combine_averages(results, order_metric)
+    non_destructive_update(results, filtered_results, "ndcg")
+    combine_averages(results, "ndcg")
 
 
-def generate_language_averages(results: dict, languages: list[str], metrics: list[str]) -> None:
+def generate_language_averages(
+    results: dict, languages: list[type[str]], metrics: list[str]
+) -> None:
     """Generate average metrics across all questions for each metric and language."""
-    language_averages = {language: {metric: [] for metric in metrics} for language in languages}
+    language_averages: dict = {
+        language: {metric: [] for metric in metrics} for language in languages
+    }
     for key, value in results.items():
         for metric in metrics:
             if metric in value:
@@ -71,14 +73,6 @@ def check_output_file(file: str) -> None:
     help="Which file to save the results.",
 )
 @click.option(
-    "--order_metric",
-    "-m",
-    type=click.STRING,
-    default="ndcg",
-    show_default=True,
-    help="Performance metric to be used for questions flagged with RESULT_ORDER_MATTERS.",
-)
-@click.option(
     "--languages",
     "-l",
     type=LanguageList(),
@@ -86,12 +80,11 @@ def check_output_file(file: str) -> None:
     show_default=True,
     help="List of languages to generate metrics results separately.",
 )
-def evaluate_command(  # noqa: PLR0913
+def evaluate_command(
     api_name: str,
     true_set: TextIOWrapper,
     pred_set: TextIOWrapper,
     output: str,
-    order_metric: str,
     languages: list[type[str]],
 ) -> None:
     """Evaluate the resuls from a TEXT2SPARQL endpoint.
@@ -99,22 +92,22 @@ def evaluate_command(  # noqa: PLR0913
     Use a questions YAML and a response JSON with answers collected from a TEXT2SPARQL conform api.
     This command will create a JSON file with the metric values using the pytrec_eval library.
     """
-    true_set = json.load(true_set)
-    pred_set = json.load(pred_set)
+    true_set_dict = json.load(true_set)
+    pred_set_dict = json.load(pred_set)
 
     evaluator = Evaluation(api_name)
-    results = evaluator.evaluate(pred_set, true_set)
+    results = evaluator.evaluate(pred_set_dict, true_set_dict)
 
-    if "order_required" in true_set:
-        order_matters(api_name, true_set, pred_set, results, order_metric)
+    if "order_required" in true_set_dict:
+        order_matters(api_name, true_set_dict, pred_set_dict, results)
 
     if len(languages) > 1:
         all_metrics = list(evaluator.metrics)
-        if order_metric not in all_metrics:
-            all_metrics.append(order_metric)
+        if "ndcg" not in all_metrics:
+            all_metrics.append("ndcg")
         generate_language_averages(results, languages, all_metrics)
         for language in languages:
-            combine_averages(results, order_metric, average_field=f"average-{language}")
+            combine_averages(results, "ndcg", average_field=f"average-{language}")
 
     check_output_file(file=output)
     logger.info(f"Writing {len(results)} results to {output if output != '-' else 'stdout'}.")

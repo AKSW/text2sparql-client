@@ -42,6 +42,7 @@ ruff = "^0.9.4"
 safety = "^1.10.3"
 types-pyyaml = "^6.0.12.20250402"
 types-requests = "^2.32.0.20250328"
+setuptools = "^82.0.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]
