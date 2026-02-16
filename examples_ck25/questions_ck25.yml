@@ -1,0 +1,1382 @@
+# yamllint disable rule:line-length
+---
+dataset:
+  id: https://text2sparql.aksw.org/2025/corporate/
+  prefix: ck25
+  defaultNamespace: http://ld.company.org/prod-vocab/
+questions:
+
+  - id: 1
+    question:
+      en: In which department is Ms. Brant?
+    features:
+      - SELECT
+    classes:
+      - :Department
+      - :Employee
+    properties:
+      - :memberOf
+    query:
+      sparql: |
+        PREFIX pv: <http://ld.company.org/prod-vocab/>
+        SELECT DISTINCT ?result
+        WHERE
+        {
+          <http://ld.company.org/prod-instances/empl-Karen.Brant%40company.org> pv:memberOf ?result .
+          ?result a pv:Department .
+        }
+
+  - id: 2
+    question:
+      en: What is the telephone of Baldwin Dirksen?
+    features:
+      - SELECT
+    classes:
+      - :Employee
+    properties:
+      - :phone
+    query:
+      sparql: |
+        PREFIX pv: <http://ld.company.org/prod-vocab/>
+        SELECT DISTINCT ?result
+        WHERE
+        {
+          <http://ld.company.org/prod-instances/empl-Baldwin.Dirksen%40company.org> pv:phone ?result .
+        }
+
+  - id: 3
+    question:
+      en: Who is the manager of Heinrich Hoch?
+    features:
+      - SELECT
+    classes:
+      - :Employee
+      - :Manager
+    properties:
+      - :hasManager
+    query:
+      sparql: |
+        PREFIX pv: <http://ld.company.org/prod-vocab/>
+        SELECT DISTINCT ?result
+        WHERE
+        {
+          <http://ld.company.org/prod-instances/empl-Heinrich.Hoch%40company.org> pv:hasManager ?result .
+        }
+
+  - id: 4
+    question:
+      en: What is the email of Sabrina from Marketing?
+    features:
+      - SELECT
+    classes:
+      - :Department
+      - :Employee
+    properties:
+      - :email
+      - :memberOf
+      - :name
+    query:
+      sparql: |
+        PREFIX pv: <http://ld.company.org/prod-vocab/>
+        SELECT DISTINCT ?result
+        WHERE
+        {
+          ?department pv:name "Marketing" .
+          ?person pv:memberOf ?department .
+          ?person pv:email ?result .
+          ?person pv:name ?name .
+          FILTER (CONTAINS(?name, "Sabrina"))
+        }
+
+  - id: 5
+    question:
+      en: Who has expertise in Transistors?
+    features:
+      - SELECT
+    classes:
+      - :Employee
+      - :ProductCategory
+    properties:
+      - :areaOfExpertise
+    query:
+      sparql: |
+        PREFIX pv: <http://ld.company.org/prod-vocab/>
+        SELECT DISTINCT ?result
+        WHERE
+        {
+          ?result pv:areaOfExpertise <http://ld.company.org/prod-instances/prod-cat-Transistor> .
+        }
+
+  - id: 6
+    question:
+      en: Who is our Sensor expert?
+    features:
+      - SELECT
+    classes:
+      - :Employee
+      - :ProductCategory
+    properties:
+      - :areaOfExpertise
+    query:
+      sparql: |
+        PREFIX pv: <http://ld.company.org/prod-vocab/>
+        SELECT DISTINCT ?result
+        WHERE
+        {
+          ?result pv:areaOfExpertise <http://ld.company.org/prod-instances/prod-cat-Sensor> .
+        }
+
+  - id: 7
+    question:
+      en: Who is the manager of the Data Services department?
+    features:
+      - SELECT
+    classes:
+      - :Department
+      - :Manager
+      - :Employee
+    properties:
+      - :memberOf
+      - :hasManager
+    query:
+      sparql: |
+        PREFIX pv: <http://ld.company.org/prod-vocab/>
+        SELECT DISTINCT ?result
+        WHERE
+        {
+          ?person pv:memberOf <http://ld.company.org/prod-instances/dept-41622> .
+          ?person pv:hasManager ?result .
+        }
+
+  - id: 8
+    question:
+      en: Which department is responsible for the Sensor Switch M558-2275045?
+    features:
+      - SELECT
+    classes:
+      - :Department
+      - :Hardware
+    properties:
+      - :responsibleFor
+    query:
+      sparql: |
+        PREFIX pv: <http://ld.company.org/prod-vocab/>
+        SELECT DISTINCT ?result
+        WHERE
+        {
+          ?result pv:responsibleFor <http://ld.company.org/prod-instances/hw-M558-2275045> .
+        }
+
+  - id: 9
+    question:
+      en: How many Sensor Switches do we offer?
+    features:
+      - SELECT
+      - COUNT
+    classes:
+      - :Hardware
+      - :ProductCategory
+    properties:
+      - :hasCategory
+    query:
+      sparql: |
+        PREFIX pv: <http://ld.company.org/prod-vocab/>
+        SELECT DISTINCT (COUNT(?resultR) as ?result)
+        WHERE
+        {
+          ?resultR pv:hasCategory <http://ld.company.org/prod-instances/prod-cat-Sensor> .
+          ?resultR pv:hasCategory <http://ld.company.org/prod-instances/prod-cat-Switch> .
+        }
+
+  - id: 10
+    question:
+      en: What is the name of the Network expert from the Marketing Department?
+    features:
+      - SELECT
+    classes:
+      - :Department
+      - :ProductCategory
+      - :Employee
+    properties:
+      - :memberOf
+      - :areaOfExpertise
+      - :name
+    query:
+      sparql: |
+        PREFIX pv: <http://ld.company.org/prod-vocab/>
+        SELECT DISTINCT ?result
+        WHERE
+        {
+          ?employee pv:memberOf <http://ld.company.org/prod-instances/dept-85880> .
+          ?employee pv:areaOfExpertise <http://ld.company.org/prod-instances/prod-cat-Network> .
+          ?employee pv:name ?result .
+        }
+
+  - id: 11
+    question:
+      en: Which departments have Transducer Experts?
+    features:
+      - SELECT
+    classes:
+      - :Department
+      - :Employee
+    properties:
+      - :areaOfExpertise
+      - :memberOf
+    query:
+      sparql: |
+        PREFIX pv: <http://ld.company.org/prod-vocab/>
+        SELECT DISTINCT ?result
+        WHERE
+        {
+          ?employee pv:memberOf ?result .
+          ?employee pv:areaOfExpertise <http://ld.company.org/prod-instances/prod-cat-Transducer> .
+        }
+
+  - id: 12
+    question:
+      en: Which supplier are available to deliver Compensators?
+    features:
+      - SELECT
+    classes:
+      - :Hardware
+      - :ProductCategory
+      - :Supplier
+    properties:
+      - :hasSupplier
+      - :hasCategory
+    query:
+      sparql: |
+        PREFIX pv: <http://ld.company.org/prod-vocab/>
+        SELECT DISTINCT ?result
+        WHERE
+        {
+          ?hardware pv:hasSupplier ?result .
+          ?hardware pv:hasCategory <http://ld.company.org/prod-instances/prod-cat-Compensator> .
+        }
+
+  - id: 13
+    question:
+      en: How many suppliers do we have in France?
+    features:
+      - SELECT
+      - COUNT
+    classes:
+      - :Supplier
+      - :Product
+    properties:
+      - :hasSupplier
+      - :addressCountry
+    query:
+      sparql: |
+        PREFIX pv: <http://ld.company.org/prod-vocab/>
+        SELECT (COUNT(DISTINCT ?supplier) as ?result)
+        WHERE
+        {
+          ?product pv:hasSupplier ?supplier .
+          ?supplier pv:addressCountry "France" .
+        }
+
+  - id: 14
+    question:
+      en: Which supplier in France delivers Compensators?
+    features:
+      - SELECT
+    classes:
+      - :Product
+      - :ProductCategory
+      - :Supplier
+    properties:
+      - :hasSupplier
+      - :hasCategory
+      - :addressCountry
+    query:
+      sparql: |
+        PREFIX pv: <http://ld.company.org/prod-vocab/>
+        SELECT DISTINCT ?result
+        WHERE
+        {
+          ?product pv:hasSupplier ?result .
+          ?product pv:hasCategory <http://ld.company.org/prod-instances/prod-cat-Compensator> .
+          ?result pv:addressCountry "France" .
+        }
+
+  - id: 15
+    question:
+      en: What is the cheapest Encoder we can get from a french or german supplier?
+    features:
+      - SELECT
+      - ORDER
+      - FILTER
+      - LIMIT
+    classes:
+      - :Product
+      - :ProductCategory
+      - :Supplier
+      - :Price
+    properties:
+      - :hasCategory
+      - :price
+      - :amount
+      - :hasSupplier
+      - :addressCountry
+    query:
+      sparql: |
+        PREFIX pv: <http://ld.company.org/prod-vocab/>
+        SELECT DISTINCT ?result
+        WHERE
+        {
+          ?result pv:hasCategory <http://ld.company.org/prod-instances/prod-cat-Encoder> .
+          ?result pv:price ?priceR .
+          ?priceR pv:amount ?price .
+          ?result pv:hasSupplier ?supplier .
+          ?supplier pv:addressCountry ?country .
+          FILTER ( (?country = "France") ||  (?country = "Germany") )
+        }
+        ORDER BY ASC(?price)
+        LIMIT 1
+
+  - id: 16
+    question:
+      en: Do we have suppliers in Toulouse?
+    features:
+      - ASK
+    classes:
+      - :Product
+      - :Supplier
+    properties:
+      - :hasSupplier
+      - :addressLocality
+    query:
+      sparql: |
+        PREFIX pv: <http://ld.company.org/prod-vocab/>
+        ASK
+        WHERE
+        {
+          ?product pv:hasSupplier ?supplier .
+          ?supplier pv:addressLocality "Toulouse" .
+        }
+
+  - id: 17
+    question:
+      en: Which suppliers do we have in Toulouse?
+    features:
+      - SELECT
+    classes:
+      - :Product
+      - :Supplier
+    properties:
+      - :hasSupplier
+      - :addressLocality
+    query:
+      sparql: |
+        PREFIX pv: <http://ld.company.org/prod-vocab/>
+        SELECT DISTINCT ?result
+        WHERE
+        {
+          ?product pv:hasSupplier ?result .
+          ?result pv:addressLocality "Toulouse" .
+        }
+
+  - id: 18
+    question:
+      en: What is the cheapest Oscillator we have?
+    features:
+      - SELECT
+      - ORDER
+      - LIMIT
+    classes:
+      - :Product
+      - :ProductCategory
+      - :Price
+    properties:
+      - :hasCategory
+      - :price
+      - :amount
+    query:
+      sparql: |
+        PREFIX pv: <http://ld.company.org/prod-vocab/>
+        SELECT DISTINCT ?result
+        WHERE
+        {
+          ?result pv:hasCategory <http://ld.company.org/prod-instances/prod-cat-Oscillator> .
+          ?result pv:price ?priceR .
+          ?priceR pv:amount ?price .
+        }
+        ORDER BY ASC(?price)
+        LIMIT 1
+
+  - id: 19
+    question:
+      en: What is the most expensive service we offer?
+    features:
+      - SELECT
+      - ORDER
+      - LIMIT
+    classes:
+      - :Service
+      - :Price
+    properties:
+      - :price
+      - :amount
+    query:
+      sparql: |
+        PREFIX pv: <http://ld.company.org/prod-vocab/>
+        SELECT DISTINCT ?result
+        WHERE
+        {
+          ?result a pv:Service .
+          ?result pv:price ?priceR .
+          ?priceR pv:amount ?price .
+        }
+        ORDER BY DESC(?price)
+        LIMIT 1
+
+  - id: 20
+    question:
+      en: Who is responsible for the most expensive service we offer?
+    features:
+      - SELECT
+      - ORDER
+      - LIMIT
+    classes:
+      - :Service
+      - :Price
+      - :Employee
+    properties:
+      - :hasProductManager
+      - :price
+      - :amount
+    query:
+      sparql: |
+        PREFIX pv: <http://ld.company.org/prod-vocab/>
+        SELECT DISTINCT ?result
+        WHERE
+        {
+          ?service a pv:Service .
+          ?service pv:hasProductManager ?result .
+          ?service pv:price ?priceR .
+          ?priceR pv:amount ?price .
+        }
+        ORDER BY DESC(?price)
+        LIMIT 1
+
+  - id: 21
+    question:
+      en: What is the heaviest coil that does not exceed a base area of 15x15 milimeter?
+    features:
+      - SELECT
+      - ORDER
+      - LIMIT
+    classes:
+      - :Product
+      - :ProductCategory
+    properties:
+      - :hasCategory
+      - :weight_g
+      - :width_mm
+      - :depth_mm
+    query:
+      sparql: |
+        PREFIX pv: <http://ld.company.org/prod-vocab/>
+        SELECT DISTINCT ?result
+        WHERE
+        {
+          ?result pv:hasCategory <http://ld.company.org/prod-instances/prod-cat-Coil> .
+          ?result pv:weight_g ?weight_g .
+          ?result pv:width_mm ?width_mm .
+          ?result pv:depth_mm ?depth_mm .
+          FILTER (?width_mm <= 15)
+          FILTER (?depth_mm <= 15)
+        }
+        ORDER BY DESC(?weight_g)
+        LIMIT 1
+
+  - id: 22
+    question:
+      en: What products are compatible with the U990 LCD Inductor?
+    features:
+      - SELECT
+    classes:
+      - :Product
+      - :Hardware
+    properties:
+      - :compatibleProduct
+    query:
+      sparql: |
+        PREFIX pv: <http://ld.company.org/prod-vocab/>
+        SELECT DISTINCT ?result
+        WHERE
+        {
+          <http://ld.company.org/prod-instances/hw-U990-5234138> pv:compatibleProduct ?result .
+        }
+
+  - id: 23
+    question:
+      en: What products can I get from US suppliers that are compatible with the U990 LCD Inductor?
+    features:
+      - SELECT
+    classes:
+      - :Hardware
+      - :Supplier
+    properties:
+      - :compatibleProduct
+      - :hasSupplier
+      - :country
+    query:
+      sparql: |
+        PREFIX pv: <http://ld.company.org/prod-vocab/>
+        SELECT DISTINCT ?result
+        WHERE
+        {
+          <http://ld.company.org/prod-instances/hw-U990-5234138> pv:compatibleProduct ?result .
+          ?result pv:hasSupplier ?supplier .
+          ?supplier pv:country <http://dbpedia.org/resource/United_States> .
+        }
+
+  - id: 24
+    question:
+      en: What is the pontiometer with the smallest volume?
+    features:
+      - SELECT
+      - ORDER
+      - LIMIT
+      - BIND
+    classes:
+      - :ProductCategory
+      - :Product
+    properties:
+      - :hasCategory
+      - :width_mm
+      - :depth_mm
+      - :height_mm
+    query:
+      sparql: |
+        PREFIX pv: <http://ld.company.org/prod-vocab/>
+        SELECT DISTINCT ?result
+        WHERE
+        {
+          ?result pv:hasCategory <http://ld.company.org/prod-instances/prod-cat-Potentiometer> .
+          ?result pv:width_mm ?width_mm .
+          ?result pv:depth_mm ?depth_mm .
+          ?result pv:height_mm ?height_mm .
+          BIND(?width_mm * ?depth_mm * ?height_mm as ?volume)
+        }
+        ORDER BY ASC(?volume)
+        LIMIT 1
+
+  - id: 25
+    question:
+      en: Which coil has the highest density?
+    features:
+      - SELECT
+      - ORDER
+      - LIMIT
+      - BIND
+    classes:
+      - :ProductCategory
+      - :Product
+    properties:
+      - :hasCategory
+      - :width_mm
+      - :depth_mm
+      - :height_mm
+      - :weight_g
+    query:
+      sparql: |
+        PREFIX pv: <http://ld.company.org/prod-vocab/>
+        SELECT DISTINCT ?result
+        WHERE
+        {
+          ?result pv:hasCategory <http://ld.company.org/prod-instances/prod-cat-Coil> .
+          ?result pv:width_mm ?width_mm .
+          ?result pv:depth_mm ?depth_mm .
+          ?result pv:height_mm ?height_mm .
+          ?result pv:weight_g ?weight_g .
+          BIND(?width_mm * ?depth_mm * ?height_mm / 1000000000 AS ?volume_m3)
+          BIND(?weight_g / 1000 AS ?weight_kg)
+          BIND(?weight_kg / ?volume_m3 AS ?density)
+        }
+        ORDER BY DESC(?density)
+        LIMIT 1
+
+  - id: 26
+    question:
+      en: In which cities are our US suppliers for LCDs?
+    features:
+      - SELECT
+    classes:
+      - :Supplier
+      - :ProductCategory
+    properties:
+      - :hasCategory
+      - :hasSupplier
+      - :country
+      - :addressLocality
+    query:
+      sparql: |
+        PREFIX pv: <http://ld.company.org/prod-vocab/>
+        SELECT DISTINCT ?result
+        WHERE
+        {
+          ?product pv:hasCategory <http://ld.company.org/prod-instances/prod-cat-LCD> .
+          ?product pv:hasSupplier ?supplier .
+          ?supplier pv:country <http://dbpedia.org/resource/United_States> .
+          ?supplier pv:addressLocality ?result .
+        }
+
+  - id: 27
+    question:
+      en: Give me a phone directory of everyone on staff who does not manage anyone, I need name, email, and phone, sorted by name?
+    features:
+      - SELECT
+      - OPTIONAL
+      - EXISTS
+      - ORDER
+      - RESULT_ORDER_MATTERS
+    classes:
+      - :Employee
+    properties:
+      - :name
+      - :email
+      - :phone
+      - :hasManager
+    query:
+      sparql: |
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX prodi: <http://ld.company.org/prod-instances/>
+        PREFIX pv: <http://ld.company.org/prod-vocab/>
+
+        SELECT ?empl ?name ?email ?phone
+        WHERE {
+          ?emplClass rdfs:subClassOf* pv:Employee .
+          ?empl a ?emplClass ;
+              pv:name ?name ;
+              pv:email ?email .
+          OPTIONAL { ?empl pv:phone ?phone }
+          FILTER NOT EXISTS { [] pv:hasManager ?empl . }
+        }
+        ORDER BY ?name
+
+  - id: 28
+    question:
+      en: Do we have any service that does apply to a BOM where parts are sourced from Russia?
+    features:
+      - ASK
+      - FILTER
+      - SUBSELECT
+    classes:
+      - :Service
+      - :BillOfMaterial
+      - :BomPart
+      - :Supplier
+      - :Hardware
+    properties:
+      - :hasBomPart
+      - :hasPart
+      - :hasSupplier
+      - :addressCountry
+      - :eligibleFor
+    query:
+      sparql: |
+        PREFIX prodi: <http://ld.company.org/prod-instances/>
+        PREFIX pv: <http://ld.company.org/prod-vocab/>
+
+        ASK
+        WHERE {
+          { # all BOMs with parts from russia
+            SELECT ?bom
+            WHERE {
+              ?bom pv:hasBomPart ?bomPart .
+              ?bomPart pv:hasPart ?hw .
+              ?hw pv:hasSupplier ?suppl .
+              ?suppl pv:addressCountry ?country .
+              FILTER (CONTAINS(LCASE(?country), LCASE("Russia")))
+            }
+          }
+
+          # services eligible for parts associated with these BOMs?
+          ?s a pv:Service .
+          ?s pv:eligibleFor ?hw .
+          ?bom pv:hasBomPart ?bomPart .
+          ?bomPart pv:hasPart ?hw .
+        }
+
+  - id: 29
+    question:
+      en: What suppliers - I need name, country and price - deliver the 6th to 10th most expensive hardware items.
+    features:
+      - SELECT
+      - ORDER
+      - LIMIT
+      - OFFSET
+    classes:
+      - :Supplier
+      - :Hardware
+      - :Price
+    properties:
+      - :name
+      - :hasSupplier
+      - :amount
+      - :currency
+      - :addressCountry
+    query:
+      sparql: |
+        PREFIX prodi: <http://ld.company.org/prod-instances/>
+        PREFIX pv: <http://ld.company.org/prod-vocab/>
+
+        SELECT ?name ?country ?price
+        WHERE {
+          ?sup a pv:Supplier ;
+            pv:addressCountry ?country ;
+          pv:name ?name .
+          ?hw a pv:Hardware ;
+          pv:price/pv:amount ?price ;
+            pv:price/pv:currency "EUR" ;
+            pv:hasSupplier ?sup .
+        }
+        ORDER BY DESC(?price)
+        LIMIT 5 OFFSET 10
+
+  - id: 30
+    question:
+      en: Which department have more than 5 employees? I need their names and the number of employees.
+    features:
+      - SELECT
+      - GROUP
+      - COUNT
+      - HAVING
+    classes:
+      - :Department
+      - :Employee
+    properties:
+      - :name
+      - :memberOf
+    query:
+      sparql: |
+        PREFIX prodi: <http://ld.company.org/prod-instances/>
+        PREFIX pv: <http://ld.company.org/prod-vocab/>
+
+        SELECT ?name (COUNT(?emp) AS ?numEmployees)
+        WHERE {
+          ?dept a pv:Department ;
+            pv:name ?name .
+          ?emp a pv:Employee ;
+            pv:memberOf ?dept .
+        }
+        GROUP BY ?depty ?name
+        HAVING (COUNT(?emp) > 5)
+
+  - id: 31
+    question:
+      en: Per product category, what's our lightest and heaviest hardware item?
+    features:
+      - SELECT
+      - GROUP
+      - MIN
+      - MAX
+    classes:
+      - :ProductCategory
+      - :Hardware
+    properties:
+      - :hasCategory
+      - :weight_g
+      - :name
+    query:
+      sparql: |
+        PREFIX prodi: <http://ld.company.org/prod-instances/>
+        PREFIX pv: <http://ld.company.org/prod-vocab/>
+
+        SELECT ?cat (MIN(?w) AS ?minWeight) (MAX(?w) AS ?maxWeight)
+        WHERE {
+          ?catItem a pv:ProductCategory ;
+            pv:name ?cat .
+          ?hw a pv:Hardware ;
+            pv:hasCategory ?catItem ;
+            pv:weight_g ?w .
+        }
+        GROUP BY ?cat
+
+  - id: 32
+    question:
+      en: For each supplier, what's the average price (in EUR) of what they sell, round reasonably?
+    features:
+      - SELECT
+      - GROUP
+      - AVG
+      - ROUND
+    classes:
+      - :Supplier
+      - :Price
+      - :Hardware
+    properties:
+      - :price
+      - :amount
+      - :currency
+      - :hasSupplier
+      - :name
+    query:
+      sparql: |
+        PREFIX prodi: <http://ld.company.org/prod-instances/>
+        PREFIX pv: <http://ld.company.org/prod-vocab/>
+
+        SELECT ?name (ROUND(AVG(?amt) * 100) / 100 AS ?avgEur) WHERE {
+          ?sup a pv:Supplier ;
+            pv:name ?name .
+          ?hw pv:hasSupplier ?sup ;
+            pv:price/pv:amount ?amt ;
+            pv:price/pv:currency "EUR" .
+        }
+        GROUP BY ?sup ?name
+
+  - id: 33
+    question:
+      en: Are there departments with no manager assigned?
+    features:
+      - ASK
+      - EXISTS
+    classes:
+      - :Department
+      - :Manager
+    properties:
+      - :memberOf
+    query:
+      sparql: |
+        PREFIX prodi: <http://ld.company.org/prod-instances/>
+        PREFIX pv: <http://ld.company.org/prod-vocab/>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+        ASK
+        WHERE {
+          ?dept a pv:Department .
+          FILTER NOT EXISTS {
+            ?m pv:memberOf ?dept .
+            ?m a pv:Manager .
+          }
+        }
+
+  - id: 34
+    question:
+      en: I need to update my supplier rolodex, give me every supplier's name and all address details.
+    features:
+      - SELECT
+      - OPTIONAL
+    classes:
+      - :Supplier
+    properties:
+      - :name
+      - :addressLocality
+      - :addressCountryCode
+      - :addressCountry
+    query:
+      sparql: |
+        PREFIX prodi: <http://ld.company.org/prod-instances/>
+        PREFIX pv: <http://ld.company.org/prod-vocab/>
+
+        SELECT ?name ?locality ?ccode ?country
+        WHERE {
+          ?sup a pv:Supplier ;
+            pv:name ?name .
+          OPTIONAL { ?sup pv:addressLocality ?locality . }
+          OPTIONAL { ?sup pv:addressCountryCode ?ccode . }
+          OPTIONAL { ?sup pv:addressCountry ?country . }
+        }
+
+  - id: 35
+    question:
+      en: For every product, list what other products it is compatible with and the price differences between both.
+    features:
+      - SELECT
+    classes:
+      - :Product
+      - :Price
+      # - owl:Class
+    properties:
+      - :compatibleProduct
+      - :amount
+      - :price
+      - :currency
+      - rdfs:subClassOf
+    query:
+      sparql: |
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX prodi: <http://ld.company.org/prod-instances/>
+        PREFIX pv:    <http://ld.company.org/prod-vocab/>
+
+        SELECT ?prod ?compatible (?prodAmount - ?compatibleAmount AS ?priceDiff)
+        WHERE {
+          ?prodClass rdfs:subClassOf* pv:Product .
+          ?prod a ?prodClass ;
+            pv:compatibleProduct ?compatible .
+          ?prod pv:price/pv:amount ?prodAmount ;
+            pv:price/pv:currency "EUR" .
+          ?compatible pv:price/pv:amount ?compatibleAmount ;
+            pv:price/pv:currency "EUR" .
+        }
+
+  - id: 36
+    question:
+      en: Which area of expertise is most relevant among our products, what are the top three skills?
+    features:
+      - SELECT
+      - GROUP
+      - COUNT
+      - ORDER
+      - LIMIT
+    classes:
+      - :Hardware
+      - :ProductCategory
+    properties:
+      - :name
+      - :hasCategory
+    query:
+      sparql: |
+        PREFIX prodi: <http://ld.company.org/prod-instances/>
+        PREFIX pv: <http://ld.company.org/prod-vocab/>
+
+        SELECT ?cat ?name
+        WHERE {
+          ?hw a pv:Hardware ;
+            pv:hasCategory ?cat .
+          ?cat pv:name ?name .
+        }
+        GROUP BY ?cat ?name
+        ORDER BY DESC(COUNT(*))
+        LIMIT 3
+
+  - id: 37
+    question:
+      en: For each Bill of Material, how many parts does it contain and what is the total material quantity — show me only those BOMs exceeding 600 total items and order them descending.
+    features:
+      - SELECT
+      - GROUP
+      - ORDER
+      - RESULT_ORDER_MATTERS
+      - COUNT
+      - SUM
+      - HAVING
+      - BIND
+    classes:
+      - :BillOfMaterial
+      - :BomPart
+    properties:
+      - :hasBomPart
+      - :quantity
+    query:
+      sparql: |
+        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+        PREFIX prodi: <http://ld.company.org/prod-instances/>
+        PREFIX pv: <http://ld.company.org/prod-vocab/>
+
+        SELECT ?bom (COUNT(?part) AS ?partCount) (SUM(?qty) AS ?totalQty)
+        WHERE {
+          ?bom a pv:BillOfMaterial ;
+            pv:hasBomPart ?part .
+          ?part pv:quantity ?qty_ .
+          BIND(xsd:int(?qty_) AS ?qty)
+        }
+        GROUP BY ?bom
+        HAVING (SUM(?qty) > 600)
+        ORDER BY DESC(SUM(?qty))
+
+  - id: 38
+    question:
+      en: I want to update my contact list, for each Employee give me name, email, phone number and the department they belong to as well as their direct report.
+    features:
+      - SELECT
+      - OPTIONAL
+    classes:
+      - :Agent
+      - :Employee
+      - :Manager
+      - :Department
+    properties:
+      - :name
+      - :email
+      - :phone
+      - :hasManager
+      - :memberOf
+      - rdfs:subClassOf
+    query:
+      sparql: |
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX prodi: <http://ld.company.org/prod-instances/>
+        PREFIX pv: <http://ld.company.org/prod-vocab/>
+
+        SELECT ?name ?email ?phone ?dept ?manager
+        WHERE {
+          ?agentClass rdfs:subClassOf* pv:Agent .
+          ?empl a ?agentClass ;
+            pv:name ?name .
+          OPTIONAL { ?empl pv:email ?email . }
+          OPTIONAL { ?empl pv:phone ?phone . }
+          OPTIONAL { ?empl pv:memberOf/pv:name ?dept . }
+          OPTIONAL { ?empl pv:hasManager/pv:name ?manager . }
+        }
+
+  - id: 39
+    question:
+      en: Which hardware items are wider than they are tall, and have a depth under 50 mm? List their dimensions.
+    features:
+      - SELECT
+      - FILTER
+    classes:
+      - :Hardware
+    properties:
+      - :width_mm
+      - :height_mm
+      - :depth_mm
+    query:
+      sparql: |
+        PREFIX prodi: <http://ld.company.org/prod-instances/>
+        PREFIX pv: <http://ld.company.org/prod-vocab/>
+
+        SELECT ?hw ?width ?height ?depth
+        WHERE {
+          ?hw a pv:Hardware ;
+            pv:width_mm ?width ;
+            pv:height_mm ?height ;
+            pv:depth_mm ?depth .
+          FILTER (?width > ?height && ?depth < 50)
+        }
+
+  - id: 40
+    question:
+      en: Which hardware items - list id and name - have no active product manager?
+    features:
+      - SELECT
+      - EXISTS
+    classes:
+      - :Hardware
+      - :Agent
+    properties:
+      - :id
+      - :name
+      - :hasProductManager
+    query:
+      sparql: |
+        PREFIX prodi: <http://ld.company.org/prod-instances/>
+        PREFIX pv: <http://ld.company.org/prod-vocab/>
+
+        SELECT ?hw ?id ?name
+        WHERE {
+          ?hw a pv:Hardware ;
+            pv:id ?id ;
+            pv:name ?name .
+          FILTER NOT EXISTS { ?hw pv:hasProductManager/pv:name [] . }
+        }
+
+  - id: 41
+    question:
+      en: For each manager, what percentage of their entire team work in the same department as the manager?
+    features:
+      - SELECT
+      - SUBSELECT
+      - GROUP
+      - COUNT
+    classes:
+      - :Manager
+      - :Agent
+      - :Department
+    properties:
+      - :hasManager
+      - :name
+      - :memberOf
+    query:
+      sparql: |
+        PREFIX prodi: <http://ld.company.org/prod-instances/>
+        PREFIX pv: <http://ld.company.org/prod-vocab/>
+
+        SELECT ?m ?name (?deptTeam / ?fullteam * 100 AS ?pct)
+        WHERE {
+
+          ?m pv:name ?name .
+
+          { # full team
+            SELECT ?m (COUNT(*) AS ?fullteam) WHERE {
+              ?e pv:hasManager ?m .
+            } GROUP BY ?m
+          }
+
+          { # team in same dept
+            SELECT ?m (COUNT(*) AS ?deptTeam) WHERE {
+              ?m pv:memberOf ?dept .
+              ?e pv:hasManager ?m .
+              ?e pv:memberOf ?dept .
+            } GROUP BY ?m
+          }
+        }
+
+  - id: 42
+    question:
+      en: Which Bill-of-Material has the highest average unit cost of its hardware parts, and what is that average?
+    features:
+      - SELECT
+      - SUBSELECT
+      - GROUP
+      - AVG
+      - SUM
+      - ROUND
+      - ORDER
+      - BIND
+      - LIMIT
+    classes:
+      - :BillOfMaterial
+      - :Hardware
+      - :BomPart
+      - :Price
+    properties:
+      - :hasBomPart
+      - :quantity
+      - :hasPart
+      - :price
+      - :amount
+      - :currency
+    query:
+      sparql: |
+        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+        PREFIX prodi: <http://ld.company.org/prod-instances/>
+        PREFIX pv: <http://ld.company.org/prod-vocab/>
+
+        SELECT ?bom (ROUND(AVG(?spst / ?sq) * 100) / 100 AS ?avgUnitCost)
+        WHERE {
+          {
+            SELECT ?bom (SUM(?partSubTotal) AS ?spst) (SUM(xsd:int(?quant)) AS ?sq)
+            WHERE {
+              ?bom a pv:BillOfMaterial ;
+                pv:hasBomPart ?part .
+              ?part pv:quantity ?quant .
+              ?part pv:hasPart/pv:price/pv:amount ?amount .
+              ?part pv:hasPart/pv:price/pv:currency "EUR" .
+              BIND(xsd:int(?quant) * ?amount AS ?partSubTotal)
+            }
+            GROUP BY ?bom
+          }
+        }
+        GROUP BY ?bom
+        ORDER BY DESC(?avgUnitCost)
+        LIMIT 1
+
+  - id: 43
+    question:
+      en: Show me any cycles of product compatibility — i.e. product A says it's compatible with B, and B says it's compatible with A (mutual pairs).
+    features:
+      - SELECT
+      - FILTER
+    classes:
+      - :Hardware
+    properties:
+      - :compatibleProduct
+    query:
+      sparql: |
+        PREFIX pv: <http://ld.company.org/prod-vocab/>
+
+        SELECT ?a ?b
+        WHERE {
+          ?a pv:compatibleProduct ?b .
+          FILTER (STR(?a) < STR(?b))
+        }
+
+  - id: 44
+    question:
+      en: Which hardware items have dimensions in the top 10 % of all widths, and what are their IDs, names and widths?
+    features:
+      - SELECT
+      - FILTER
+      - SUBSELECT
+      - BIND
+      - MIN
+      - MAX
+    classes:
+      - :Hardware
+    properties:
+      - :compatibleProduct
+      - :width_mm
+      - :id
+      - :name
+    query:
+      sparql: |
+        PREFIX pv: <http://ld.company.org/prod-vocab/>
+
+        SELECT ?id ?name ?width
+        WHERE {
+          { # get min-max range
+            SELECT (MIN(?width) AS ?minW) (MAX(?width) AS ?maxW)
+            WHERE {
+              ?hw a pv:Hardware ;
+                pv:width_mm ?width .
+            }
+          }
+
+          # get 90. percentile
+          BIND(?minW + (0.9 * (?maxW - ?minW)) AS ?pct90)
+
+          ?hw a pv:Hardware ;
+            pv:id ?id ;
+            pv:name ?name ;
+            pv:width_mm ?width .
+
+          FILTER(?width >= ?pct90)
+        }
+        ORDER BY DESC(?width)
+
+  - id: 45
+    question:
+      en: Which supplier delivers the most reliable Inductor?
+    features:
+      - SELECT
+      - ORDER
+      - LIMIT
+    classes:
+      - :Hardware
+      - :Supplier
+      - :ProductCategory
+    properties:
+      - :hasCategory
+      - :reliabilityIndex
+      - :hasSupplier
+    query:
+      sparql: |
+        PREFIX pv: <http://ld.company.org/prod-vocab/>
+        SELECT DISTINCT ?result
+        WHERE
+        {
+          ?hardware pv:hasCategory <http://ld.company.org/prod-instances/prod-cat-Inductor> .
+          ?hardware pv:reliabilityIndex ?reliabilityIndex .
+          ?hardware pv:hasSupplier ?result .
+        }
+        ORDER BY DESC(?reliabilityIndex)
+        LIMIT 1
+
+  - id: 46
+    question:
+      en: What are the top 5 suppliers with best average reliability over their products.
+    features:
+      - SELECT
+      - GROUP
+      - AVG
+      - ORDER
+      - LIMIT
+    classes:
+      - :Supplier
+      - :Product
+    properties:
+      - :reliabilityIndex
+      - :hasSupplier
+    query:
+      sparql: |
+        PREFIX pv: <http://ld.company.org/prod-vocab/>
+        SELECT DISTINCT ?result (AVG(?reliabilityIndex) AS ?averageReliabilityIndex)
+        WHERE
+        {
+          ?hardware pv:reliabilityIndex ?reliabilityIndex .
+          ?hardware pv:hasSupplier ?result .
+        }
+        GROUP BY ?result
+        ORDER BY DESC(?averageReliabilityIndex)
+        LIMIT 5
+
+
+  - id: 47
+    question:
+      en: From which countries are the BOM parts of our SkySync MechWave delivered?
+    features:
+      - SELECT
+    classes:
+      - :BillOfMaterial
+      - :BomPart
+      - :Product
+      - :Supplier
+    properties:
+      - :hasBomPart
+      - :hasPart
+      - :hasSupplier
+      - :country
+    query:
+      sparql: |
+        PREFIX pv: <http://ld.company.org/prod-vocab/>
+        SELECT DISTINCT ?result
+        WHERE
+        {
+          <http://ld.company.org/prod-instances/bom-17> pv:hasBomPart ?bomPart .
+          ?bomPart pv:hasPart ?product .
+          ?product pv:hasSupplier ?supplier .
+          ?supplier pv:country ?result
+        }
+
+  - id: 48
+    question:
+      en: Show me all BOMs which have at least on part from a polish supplier.
+    features:
+      - SELECT
+    classes:
+      - :BillOfMaterial
+      - :BomPart
+      - :Product
+      - :Supplier
+    properties:
+      - :hasBomPart
+      - :hasPart
+      - :hasSupplier
+      - :country
+    query:
+      sparql: |
+        PREFIX pv: <http://ld.company.org/prod-vocab/>
+        SELECT DISTINCT ?result
+        WHERE
+        {
+          ?result a pv:BillOfMaterial .
+          ?result pv:hasBomPart ?bomPart .
+          ?bomPart pv:hasPart ?product .
+          ?product pv:hasSupplier ?supplier .
+          ?supplier pv:country <http://dbpedia.org/resource/Poland> .
+        }
+
+  - id: 49
+    question:
+      en: How many suppliers can deliver alternative compatible products for the K367 Strain Encoder?
+    features:
+      - SELECT
+      - COUNT
+    classes:
+      - :Product
+      - :Supplier
+    properties:
+      - :compatibleProduct
+      - :hasSupplier
+    query:
+      sparql: |
+        PREFIX pv: <http://ld.company.org/prod-vocab/>
+        SELECT DISTINCT (COUNT(?supplier) AS ?result)
+        WHERE
+        {
+          <http://ld.company.org/prod-instances/hw-K367-1320550> pv:compatibleProduct ?alternative .
+          ?alternative pv:hasSupplier ?supplier .
+        }
+
+  - id: 50
+    question:
+      en: Which department is resposible for the most product and how many product are this?
+    features:
+      - SELECT
+      - GROUP
+      - COUNT
+      - ORDER
+      - LIMIT
+    classes:
+      - :Department
+      - :Product
+    properties:
+      - :responsibleFor
+    query:
+      sparql: |
+        PREFIX pv: <http://ld.company.org/prod-vocab/>
+        SELECT DISTINCT ?result (COUNT(?result) AS ?count)
+        WHERE
+        {
+          ?result pv:responsibleFor ?product .
+        }
+        GROUP BY ?result
+        ORDER BY DESC(?count)
+        LIMIT 1
+
