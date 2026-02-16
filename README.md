@@ -27,40 +27,20 @@ The TEXT2SPARQL-CLIENT is the official testing CLI tool for the [International T
 
 ### CK25
 
-Usage example for the CK25 dataset from the [First International TEXT2SPARQL challenge](https://text2sparql.aksw.org/2025/). To execute tests for the CK25 dataset you will need a valid API according to the challenge specifications, [see](https://text2sparql.aksw.org/latest/participation/challenge/#process) and the directory `examples`. It contains the questions file `questions_ck25.yml` the True Result-set `ck25_true_result.json` (which can be generated with the questions file running the command `text2sparql query -o "ck25_true_result.json" questions.yml`), and the example shell file. To ask, query and evaluate according to your API open the `examples` directory and run `bash run_ck25.sh <API_IP> <API_NAME>`:
+Usage example for the CK25 dataset from the [First International TEXT2SPARQL challenge](https://text2sparql.aksw.org/2025/). To execute tests for the CK25 dataset you will need a valid API according to the challenge specifications, [see](https://text2sparql.aksw.org/latest/participation/challenge/#process) and the directory `examples`. It contains the questions file `questions_ck25.yml` the True Result-set `ck25_true_result.json` (which can be generated with the questions file running the command `text2sparql query -o "ck25_true_result.json" questions.yml`), and the example shell file. To ask, query and evaluate according to your API open the `examples` directory and run `run_ck25.sh` passing `<API_IP> <API_NAME>`, for example:
 
 ```bash
-#!/usr/bin/env bash
-# @(#) run ask, query and evaluate for all questions and responses
-# Use the unofficial bash strict mode: http://redsymbol.net/articles/unofficial-bash-strict-mode/
-set -euo pipefail; export FS=$'\n\t'
-
-API_NAME=${2:-}
-API_IP=${1:-}
-
-echo "Running ask, query and evaluate for all questions and responses for $API_NAME at $API_IP"
-text2sparql ask -o "${API_NAME}_ck25_answers.json" questions_ck25.yml "${API_IP}"
-text2sparql query -o "${API_NAME}_ck25_pred_result_set.json" -a "${API_NAME}_ck25_answers.json" questions_ck25.yml
-text2sparql evaluate -o "${API_NAME}_ck25_results.json" "${API_NAME}" ck25_true_result_set.json "${API_NAME}_ck25_pred_result_set.json"
+cd examples
+bash run_ck25.sh "http://127.0.0.1:8000" "text2sparql_qwen3"
 ```
 
 ### DB25
 
-Usage example for the DB25 dataset from the [First International TEXT2SPARQL challenge](https://text2sparql.aksw.org/2025/). To execute tests for the CK25 dataset you will need a valid API according to the challenge specifications, [see](https://text2sparql.aksw.org/latest/participation/challenge/#process) and the directory `examples`. It contains the questions file `questions_db25.yml` the True Result-set `db25_true_result.json` (which can be generated with the questions file running the command `text2sparql query -o "db25_true_result.json" questions.yml`), and the example shell file. To ask, query and evaluate according to your API open the `examples` directory and run `bash run_db25.sh <API_IP> <API_NAME>`:
+Usage example for the DB25 dataset from the [First International TEXT2SPARQL challenge](https://text2sparql.aksw.org/2025/). To execute tests for the CK25 dataset you will need a valid API according to the challenge specifications, [see](https://text2sparql.aksw.org/latest/participation/challenge/#process) and the directory `examples`. It contains the questions file `questions_db25.yml` the True Result-set `db25_true_result.json` (which can be generated with the questions file running the command `text2sparql query -o "db25_true_result.json" questions.yml`), and the example shell file. To ask, query and evaluate according to your API open the `examples` directory and run `run_db25.sh` passing `<API_IP> <API_NAME>`, for example:
 
 ```bash
-#!/usr/bin/env bash
-# @(#) run ask, query and evaluate for all questions and responses
-# Use the unofficial bash strict mode: http://redsymbol.net/articles/unofficial-bash-strict-mode/
-set -euo pipefail; export FS=$'\n\t'
-
-API_NAME=${2:-}
-API_IP=${1:-}
-
-echo "Running ask, query and evaluate for all questions and responses for $API_NAME at $API_IP"
-text2sparql ask -o "${API_NAME}_db25_answers.json" questions_db25.yml "${API_IP}"
-text2sparql query -o "${API_NAME}_db25_pred_result_set.json" -a "${API_NAME}_db25_answers.json" -l "['en', 'es']" -e "http://141.57.8.18:9081/sparql" questions_db25.yml
-text2sparql evaluate -o "${API_NAME}_db25_results.json" -l "['en', 'es']" "${API_NAME}" db25_true_result_set.json "${API_NAME}_db25_pred_result_set.json"
+cd examples
+bash run_db25.sh "http://127.0.0.1:8000" "text2sparql_qwen3"
 ```
 
 ## Commands Reference
