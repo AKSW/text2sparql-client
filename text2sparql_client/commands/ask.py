@@ -96,7 +96,6 @@ def ask_command(  # noqa: PLR0913
             except ValidationError as error:
                 logger.debug(str(error))
                 logger.error("validation error")
-    check_output_file(file=output)
     logger.info(f"Writing {len(responses)} responses to {output if output != '-' else 'stdout'}.")
     with click.open_file(filename=output, mode="w", encoding="UTF-8") as file:
         json.dump(responses, file, indent=2)

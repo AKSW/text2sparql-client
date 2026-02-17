@@ -106,3 +106,16 @@ class ResponsesFiles:
 def responses_files() -> ResponsesFiles:
     """Provide FixtureData"""
     return ResponsesFiles()
+
+
+class ResultSetsFiles:
+    """Fixture result_set data for test"""
+
+    result_set = FIXTURE_DIR / "result_set.json"
+    result_set_missing = FIXTURE_DIR / "result_set_missing.json"
+
+
+@pytest.fixture
+def result_sets_files() -> ResultSetsFiles:
+    """Provide FixtureData"""
+    return ResultSetsFiles()

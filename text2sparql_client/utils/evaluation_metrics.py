@@ -1,8 +1,36 @@
-"""evaluation classes"""
+"""evaluation functions and classes"""
 
-import typing
+import statistics
 
 import pytrec_eval
+
+
+def filter_answer_dict(answer_dict: dict, order_required: list) -> dict:
+    """Filter the questions where order is required for full evaluation"""
+    return_dict = {}
+    for question_id in order_required:
+        return_dict[question_id] = answer_dict[question_id]
+    return return_dict
+
+
+def non_destructive_update(results: dict, new_results: dict, new_metric: str) -> None:
+    """Update the results with order_metric where necessary without touching other metrics"""
+    for key in new_results:
+        results[key][new_metric] = new_results[key][new_metric]
+
+
+def combine_averages(
+    results: dict, new_metric: str, average_field: str = "average", old_metric: str = "set_F"
+) -> None:
+    """Create a new average value that combines set_F with order_metric"""
+    combined_list = []
+    for value in results.values():
+        if new_metric in value:
+            combined_list.append(value[new_metric])
+        else:
+            combined_list.append(value[old_metric])
+
+    results[average_field][f"{old_metric}_{new_metric}"] = statistics.fmean(combined_list)
 
 
 class DBpediaDict2PytrecDict:
@@ -66,7 +94,7 @@ class Evaluation:
         self,
         predicted_dict: dict[str, dict[str, int]],
         ground_truth_dict: dict[str, dict[str, int]],
-    ) -> dict | typing.Any:  # noqa: ANN401
+    ) -> dict:
         """Evaluate the model considering a true dictionary and a predicted dictionary.
 
         Args:
@@ -77,8 +105,15 @@ class Evaluation:
            dict[dict[float]]: A dictionary with the average precision, recall and F1
 
         """
-        evaluator = pytrec_eval.RelevanceEvaluator(ground_truth_dict, self.metrics)
-        results = evaluator.evaluate(predicted_dict)
+        results = {}
+        for question_id_key in predicted_dict:  # noqa: PLC0206
+            ground_truth = {question_id_key: ground_truth_dict[question_id_key]}
+            prediction = {question_id_key: predicted_dict[question_id_key]}
+
+            evaluator = pytrec_eval.RelevanceEvaluator(ground_truth, self.metrics)
+            results_question = evaluator.evaluate(prediction)
+            results.update(results_question)
+
         d: dict[str, float] = {}
         for measure in self.metrics:
             d[measure] = float(
