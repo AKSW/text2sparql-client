@@ -63,7 +63,7 @@ Provide a TEXT2SPARQL testing endpoint. Serves as a simple reference implementat
 #### Example
 
 ```bash
-text2sparql-client serve --port 8000 --host 0.0.0.0
+text2sparql serve --port 8000 --host 0.0.0.0
 ```
 
 ---
@@ -92,7 +92,7 @@ Query a TEXT2SPARQL endpoint using a questions YAML file and send each question 
 #### Example
 
 ```bash
-text2sparql-client ask questions.yml http://localhost:8000 -o answers.json
+text2sparql ask questions.yml http://localhost:8000 -o answers.json
 ```
 
 ---
@@ -120,7 +120,7 @@ Query an RDF endpoint with SPARQL queries from the questions file or answers fil
 #### Example
 
 ```bash
-text2sparql-client query questions.yml -e http://localhost:9080/sparql -o result_set.json
+text2sparql query questions.yml -e http://localhost:9080/sparql -o result_set.json
 ```
 
 
@@ -149,7 +149,7 @@ Evaluate results from a TEXT2SPARQL endpoint by comparing predicted answers agai
 #### Example
 
 ```bash
-text2sparql-client evaluate my-api true_results.json predicted_results.json -o metrics.json -l "['en', 'es']"
+text2sparql evaluate my-api true_results.json predicted_results.json -o metrics.json -l "['en', 'es']"
 ```
 
 ---
