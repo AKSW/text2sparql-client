@@ -25,6 +25,7 @@ pytrec-eval = "^0.5"
 numpy = "^1.15.1"
 scipy = "^1.1.0"
 SPARQLWrapper = "^2.0.0"
+setuptools = "^82.0.0"
 
 [tool.poetry.scripts]
 text2sparql = 'text2sparql_client.cli:cli'
@@ -42,7 +43,6 @@ ruff = "^0.9.4"
 safety = "^1.10.3"
 types-pyyaml = "^6.0.12.20250402"
 types-requests = "^2.32.0.20250328"
-setuptools = "^82.0.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]
