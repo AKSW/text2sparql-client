@@ -130,6 +130,8 @@ def query_command(
     The result set will be saved to the file specified by OUTPUT.
     If ANSWERS_FILE is provided, it will be used to generate the predicted result set instead.
     """
+    check_output_file(file=output)
+
     test_dataset = yaml.safe_load(questions_file)
     if answers_file:
         json_answers = json.load(answers_file)
@@ -137,7 +139,6 @@ def query_command(
     else:
         result_set = generate_true_result_set(test_dataset, endpoint, languages)
 
-    check_output_file(file=output)
     logger.info(f"Writing {len(result_set)} results to {output if output != '-' else 'stdout'}.")
     with click.open_file(filename=output, mode="w", encoding="UTF-8") as file:
         json.dump(result_set, file, indent=2)

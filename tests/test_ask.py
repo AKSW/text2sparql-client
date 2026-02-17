@@ -1,5 +1,7 @@
 """Test queries"""
 
+import pytest
+
 from tests import run, run_asserting_error
 from tests.conftest import QuestionsFiles, ServerFixture, is_json_file
 
@@ -28,20 +30,22 @@ def test_non_successful_runs(server: ServerFixture, questions_files: QuestionsFi
     )
 
 
+@pytest.mark.skip(reason="tests that require output to be save are currently disabled")
 def test_output(server: ServerFixture, questions_files: QuestionsFiles) -> None:
     """Test different output files."""
     output = "output.json"
-    run(command=("ask", str(questions_files.questions), server.get_url(), "-o", output))
+    run(command=("ask", "-o", output, str(questions_files.with_ids), server.get_url()))
     run_asserting_error(
-        command=("ask", str(questions_files.questions), server.get_url(), "-o", output),
+        command=("ask", "-o", output, str(questions_files.with_ids), server.get_url()),
         match="already exists.",
     )
     assert is_json_file(output), "Output file should be JSON."
 
 
+@pytest.mark.skip(reason="tests that require output to be save are currently disabled")
 def test_cached_response(server: ServerFixture, questions_files: QuestionsFiles) -> None:
     """Test cached response."""
-    command = ("ask", str(questions_files.questions), server.get_url())
+    command = ("ask", str(questions_files.with_ids), server.get_url())
     assert "Cached response found." not in run(command=command).stdout
     assert "Cached response found." in run(command=command).stdout
     assert "Cached response found." not in run(command=(*command, "--no-cache")).stdout

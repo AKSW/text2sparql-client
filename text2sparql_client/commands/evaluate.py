@@ -92,6 +92,8 @@ def evaluate_command(
     Use a questions YAML and a response JSON with answers collected from a TEXT2SPARQL conform api.
     This command will create a JSON file with the metric values using the pytrec_eval library.
     """
+    check_output_file(file=output)
+
     true_set_dict = json.load(true_set)
     pred_set_dict = json.load(pred_set)
 
@@ -109,7 +111,6 @@ def evaluate_command(
         for language in languages:
             combine_averages(results, "ndcg", average_field=f"average-{language}")
 
-    check_output_file(file=output)
     logger.info(f"Writing {len(results)} results to {output if output != '-' else 'stdout'}.")
     with click.open_file(filename=output, mode="w", encoding="UTF-8") as file:
         json.dump(results, file, indent=2)
