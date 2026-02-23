@@ -23,6 +23,60 @@ def check_output_file(file: str) -> None:
         sys.exit(1)
 
 
+def _retry_response(  # noqa: PLR0913
+    counter: int,
+    retries: int,
+    responses: list,
+    url: str,
+    file_model: QuestionsFile,
+    question_section: list,
+    language: str,
+    question: str,
+    database: Database,
+    timeout: int,
+    cache: bool,
+) -> None:
+    if counter > retries:
+        logger.error("Maximum number of retries reached. Skipping question.")
+        return
+
+    logger.info("Retrying...")
+    try:
+        response = text2sparql(
+            endpoint=url,
+            dataset=file_model.dataset.id,
+            question=question,
+            database=database,
+            timeout=timeout,
+            cache=cache,
+        )
+        answer: dict[str, str] = response.model_dump()
+        if question_section.id and file_model.dataset.prefix:
+            answer["qname"] = f"{file_model.dataset.prefix}:{question_section.id}-{language}"
+            answer["uri"] = f"{file_model.dataset.id}{question_section.id}-{language}"
+        responses.append(answer)
+    except requests.ReadTimeout as error:
+        logger.error(f"Request timed out after {timeout} seconds: {error}")
+        _retry_response(
+            counter=counter + 1,
+            retries=retries,
+            responses=responses,
+            url=url,
+            file_model=file_model,
+            question_section=question_section,
+            language=language,
+            question=question,
+            database=database,
+            timeout=timeout,
+            cache=cache,
+        )
+    except (requests.ConnectionError, requests.HTTPError) as error:
+        logger.error(str(error))
+    except ValidationError as error:
+        logger.debug(str(error))
+        logger.error("validation error")
+
+
 @click.command(name="ask")
 @click.argument("QUESTIONS_FILE", type=click.File())
 @click.argument("URL", type=click.STRING)
@@ -39,6 +93,14 @@ def check_output_file(file: str) -> None:
     default=600,
     show_default=True,
     help="Timeout in seconds.",
+)
+@click.option(
+    "--retries",
+    "-r",
+    type=int,
+    default=5,
+    show_default=True,
+    help="Number of retries for timed out requests.",
 )
 @click.option(
     "--output",
@@ -59,6 +121,7 @@ def ask_command(  # noqa: PLR0913
     url: str,
     answers_db: str,
     timeout: int,
+    retries: int,
     output: str,
     cache: bool,
 ) -> None:
@@ -91,7 +154,22 @@ def ask_command(  # noqa: PLR0913
                     )
                     answer["uri"] = f"{file_model.dataset.id}{question_section.id}-{language}"
                 responses.append(answer)
-            except (requests.ConnectionError, requests.HTTPError, requests.ReadTimeout) as error:
+            except requests.ReadTimeout as error:
+                logger.error(f"Request timed out after {timeout} seconds: {error}")
+                _retry_response(
+                    counter=1,
+                    retries=retries,
+                    responses=responses,
+                    url=url,
+                    file_model=file_model,
+                    question_section=question_section,
+                    language=language,
+                    question=question,
+                    database=database,
+                    timeout=timeout,
+                    cache=cache,
+                )
+            except (requests.ConnectionError, requests.HTTPError) as error:
                 logger.error(str(error))
             except ValidationError as error:
                 logger.debug(str(error))
