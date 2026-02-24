@@ -4,6 +4,7 @@ import json
 import sys
 from io import TextIOWrapper
 from pathlib import Path
+from time import sleep
 
 import click
 import requests
@@ -36,11 +37,17 @@ def _retry_response(  # noqa: PLR0913
     timeout: int,
     cache: bool,
 ) -> None:
+    qname = f"{file_model.dataset.prefix}:{question_section.id}-{language}"
+
     if counter > retries:
-        logger.error("Maximum number of retries reached. Skipping question.")
+        logger.log("SKIPPED", f"{qname} | Maximum number of retries reached. Skipping question.")
         return
 
-    logger.info("Retrying...")
+    logger.log(
+        "RETRY",
+        f"{qname} | Retrying ({counter}/{retries}) after 15 seconds...",
+    )
+    sleep(15)
     try:
         response = text2sparql(
             endpoint=url,
@@ -55,8 +62,11 @@ def _retry_response(  # noqa: PLR0913
             answer["qname"] = f"{file_model.dataset.prefix}:{question_section.id}-{language}"
             answer["uri"] = f"{file_model.dataset.id}{question_section.id}-{language}"
         responses.append(answer)
-    except requests.ReadTimeout as error:
-        logger.error(f"Request timed out after {timeout} seconds: {error}")
+    except (requests.ConnectionError, requests.HTTPError, requests.ReadTimeout) as error:
+        logger.log(
+            "RETRY",
+            f"{qname} | {error}",
+        )
         _retry_response(
             counter=counter + 1,
             retries=retries,
@@ -70,8 +80,6 @@ def _retry_response(  # noqa: PLR0913
             timeout=timeout,
             cache=cache,
         )
-    except (requests.ConnectionError, requests.HTTPError) as error:
-        logger.error(str(error))
     except ValidationError as error:
         logger.debug(str(error))
         logger.error("validation error")
@@ -100,7 +108,14 @@ def _retry_response(  # noqa: PLR0913
     type=int,
     default=5,
     show_default=True,
-    help="Number of retries for timed out requests.",
+    help="Number of retries for disconnected, http error and timed out requests.",
+)
+@click.option(
+    "--retries-log",
+    type=click.Path(dir_okay=False, writable=True, file_okay=True),
+    default="retries.log",
+    show_default=True,
+    help="File to log retries errors to.",
 )
 @click.option(
     "--output",
@@ -122,6 +137,7 @@ def ask_command(  # noqa: PLR0913
     answers_db: str,
     timeout: int,
     retries: int,
+    retry_log: str,
     output: str,
     cache: bool,
 ) -> None:
@@ -130,6 +146,10 @@ def ask_command(  # noqa: PLR0913
     Use a questions YAML file and send each question to a TEXT2SPARQL conform endpoint.
     This command will create a sqlite database (--answers-db) saving the responses.
     """
+    logger.level("RETRY", no=60, color="<magenta>")
+    logger.level("SKIPPED", no=100, color="<red>")
+    logger.add(retry_log, level="RETRY", colorize=False, backtrace=True, diagnose=True)
+
     database = Database(file=Path(answers_db))
     file_model = QuestionsFile.model_validate(yaml.safe_load(questions_file))
     logger.info(f"Asking questions about dataset {file_model.dataset.id} on endpoint {url}.")
@@ -138,6 +158,7 @@ def ask_command(  # noqa: PLR0913
     for question_section in file_model.questions:
         for language, question in question_section.question.items():
             logger.info(f"{question} ({language}) ... ")
+            qname = f"{file_model.dataset.prefix}:{question_section.id}-{language}"
             try:
                 response = text2sparql(
                     endpoint=url,
@@ -149,13 +170,14 @@ def ask_command(  # noqa: PLR0913
                 )
                 answer: dict[str, str] = response.model_dump()
                 if question_section.id and file_model.dataset.prefix:
-                    answer["qname"] = (
-                        f"{file_model.dataset.prefix}:{question_section.id}-{language}"
-                    )
+                    answer["qname"] = qname
                     answer["uri"] = f"{file_model.dataset.id}{question_section.id}-{language}"
                 responses.append(answer)
-            except requests.ReadTimeout as error:
-                logger.error(f"Request timed out after {timeout} seconds: {error}")
+            except (requests.ConnectionError, requests.HTTPError, requests.ReadTimeout) as error:
+                logger.log(
+                    "RETRY",
+                    f"{qname} | {error}",
+                )
                 _retry_response(
                     counter=1,
                     retries=retries,
@@ -169,8 +191,6 @@ def ask_command(  # noqa: PLR0913
                     timeout=timeout,
                     cache=cache,
                 )
-            except (requests.ConnectionError, requests.HTTPError) as error:
-                logger.error(str(error))
             except ValidationError as error:
                 logger.debug(str(error))
                 logger.error("validation error")

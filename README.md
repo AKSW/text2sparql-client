@@ -27,20 +27,20 @@ The TEXT2SPARQL-CLIENT is the official testing CLI tool for the [International T
 
 ### CK25
 
-Usage example for the CK25 dataset from the [First International TEXT2SPARQL challenge](https://text2sparql.aksw.org/2025/). To execute tests for the CK25 dataset you will need a valid API according to the challenge specifications, [see](https://text2sparql.aksw.org/latest/participation/challenge/#process) and the directory `examples`. It contains the questions file `questions_ck25.yml` the True Result-set `ck25_true_result.json` (which can be generated with the questions file running the command `text2sparql query -o "ck25_true_result.json" questions.yml`), and the example shell file. To ask, query and evaluate according to your API open the `examples` directory and run `run_ck25.sh` passing `<API_IP> <API_NAME>`, for example:
+Usage example for the CK25 dataset from the [First International TEXT2SPARQL challenge](https://text2sparql.aksw.org/2025/). To execute tests for the CK25 dataset you will need a valid API according to the challenge specifications, [see](https://text2sparql.aksw.org/latest/participation/challenge/#process) and the directory `examples`. It contains the questions file `questions_ck25.yml` the True Result-set `ck25_true_result.json` (which can be generated with the questions file running the command `text2sparql query -o "ck25_true_result.json" questions.yml`), and the example shell file. To ask, query and evaluate according to your API open the `examples` directory and run `run_ck25.sh` passing `<API_URL> <API_NAME>`, for example:
 
 ```bash
 cd examples
-bash run_ck25.sh "http://127.0.0.1:8000" "text2sparql_qwen3"
+bash run_ck25.sh "http://localhost:8000" "text2sparql"
 ```
 
 ### DB25
 
-Usage example for the DB25 dataset from the [First International TEXT2SPARQL challenge](https://text2sparql.aksw.org/2025/). To execute tests for the CK25 dataset you will need a valid API according to the challenge specifications, [see](https://text2sparql.aksw.org/latest/participation/challenge/#process) and the directory `examples`. It contains the questions file `questions_db25.yml` the True Result-set `db25_true_result.json` (which can be generated with the questions file running the command `text2sparql query -o "db25_true_result.json" questions.yml`), and the example shell file. To ask, query and evaluate according to your API open the `examples` directory and run `run_db25.sh` passing `<API_IP> <API_NAME>`, for example:
+Usage example for the DB25 dataset from the [First International TEXT2SPARQL challenge](https://text2sparql.aksw.org/2025/). To execute tests for the CK25 dataset you will need a valid API according to the challenge specifications, [see](https://text2sparql.aksw.org/latest/participation/challenge/#process) and the directory `examples`. It contains the questions file `questions_db25.yml` the True Result-set `db25_true_result.json` (which can be generated with the questions file running the command `text2sparql query -o "db25_true_result.json" questions.yml`), and the example shell file. To ask, query and evaluate according to your API open the `examples` directory and run `run_db25.sh` passing `<API_URL> <API_NAME>`, for example:
 
 ```bash
 cd examples
-bash run_db25.sh "http://127.0.0.1:8000" "text2sparql_qwen3"
+bash run_db25.sh "http://localhost:8000" "text2sparql"
 ```
 
 ## Commands Reference
@@ -86,6 +86,8 @@ Query a TEXT2SPARQL endpoint using a questions YAML file and send each question 
 |--------|------|---------|-------------|
 | `--answers-db` | Path | `responses.db` | Where to save the endpoint responses (SQLite database) |
 | `--timeout` | Integer | `600` | Timeout in seconds for each request |
+| `--retries` / `-r` | Integer | `5` | Number of retries for disconnected, http error and timed out requests |
+| `--retries-log` | Path | `retries.log` | File to log retries to |
 | `--output` / `-o` | Path | `-` (stdout) | Save JSON output to this file |
 | `--cache` / `--no-cache` | Boolean | `True` | If possible, return a cached response from the answers database |
 
