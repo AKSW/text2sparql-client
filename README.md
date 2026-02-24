@@ -87,6 +87,7 @@ Query a TEXT2SPARQL endpoint using a questions YAML file and send each question 
 | `--answers-db` | Path | `responses.db` | Where to save the endpoint responses (SQLite database) |
 | `--timeout` | Integer | `600` | Timeout in seconds for each request |
 | `--retries` / `-r` | Integer | `5` | Number of retries for disconnected, http error and timed out requests |
+| `--retry-sleep` | Integer | `15` | Seconds to sleep between retries |
 | `--retries-log` | Path | `retries.log` | File to log retries to |
 | `--output` / `-o` | Path | `-` (stdout) | Save JSON output to this file |
 | `--cache` / `--no-cache` | Boolean | `True` | If possible, return a cached response from the answers database |
