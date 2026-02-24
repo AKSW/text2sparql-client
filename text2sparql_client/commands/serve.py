@@ -26,7 +26,7 @@ KNOWN_DATASETS = [
 class Settings(BaseSettings):
     """Endpoint Settings"""
 
-    sleep: int = 0
+    sleep: int = 3
 
 
 settings = Settings()
@@ -69,7 +69,7 @@ async def get_answer(question: str, dataset: str) -> dict[str, str]:
     "--sleep",
     "sleep_",
     type=int,
-    default=0,
+    default=3,
     show_default=True,
     help="How long to sleep before answering.",
 )

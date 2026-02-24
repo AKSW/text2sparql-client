@@ -4,6 +4,7 @@ import json
 import sys
 from io import TextIOWrapper
 from pathlib import Path
+from time import sleep
 
 import click
 import requests
@@ -12,7 +13,7 @@ from loguru import logger
 from pydantic import ValidationError
 
 from text2sparql_client.database import Database
-from text2sparql_client.models.questions_file import QuestionsFile
+from text2sparql_client.models.questions_file import Question, QuestionsFile
 from text2sparql_client.request import text2sparql
 
 
@@ -21,6 +22,67 @@ def check_output_file(file: str) -> None:
     if Path(file).exists():
         logger.error(f"Output file {file} already exists.")
         sys.exit(1)
+
+
+def _retry_response(  # noqa: PLR0913
+    counter: int,
+    retries: int,
+    retry_sleep: int,
+    responses: list,
+    url: str,
+    file_model: QuestionsFile,
+    question_section: Question,
+    language: str,
+    question: str,
+    database: Database,
+    timeout: int,
+    cache: bool,
+) -> None:
+    qname = f"{file_model.dataset.prefix}:{question_section.id}-{language}"
+
+    if counter > retries:
+        logger.bind(retry=True).error(
+            f"{qname} | Maximum number of retries reached. Skipping question."
+        )
+        return
+
+    logger.bind(retry=True).info(
+        f"{qname} | Retrying ({counter}/{retries}) after {retry_sleep} seconds..."
+    )
+    sleep(retry_sleep)
+    try:
+        response = text2sparql(
+            endpoint=url,
+            dataset=file_model.dataset.id,
+            question=question,
+            database=database,
+            timeout=timeout,
+            cache=cache,
+        )
+        answer: dict[str, str] = response.model_dump()
+        if question_section.id and file_model.dataset.prefix:
+            answer["qname"] = f"{file_model.dataset.prefix}:{question_section.id}-{language}"
+            answer["uri"] = f"{file_model.dataset.id}{question_section.id}-{language}"
+        responses.append(answer)
+    except (requests.ConnectionError, requests.HTTPError, requests.ReadTimeout) as error:
+        logger.bind(retry=True).warning(f"{qname} | {error}")
+        _retry_response(
+            counter=counter + 1,
+            retries=retries,
+            retry_sleep=retry_sleep,
+            responses=responses,
+            url=url,
+            file_model=file_model,
+            question_section=question_section,
+            language=language,
+            question=question,
+            database=database,
+            timeout=timeout,
+            cache=cache,
+        )
+    except ValidationError as error:
+        logger.debug(str(error))
+        logger.error("validation error")
 
 
 @click.command(name="ask")
@@ -41,6 +103,28 @@ def check_output_file(file: str) -> None:
     help="Timeout in seconds.",
 )
 @click.option(
+    "--retries",
+    "-r",
+    type=int,
+    default=5,
+    show_default=True,
+    help="Number of retries for disconnected, http error and timed out requests.",
+)
+@click.option(
+    "--retry-sleep",
+    type=int,
+    default=15,
+    show_default=True,
+    help="Amount of seconds to sleep before retrying a request.",
+)
+@click.option(
+    "--retries-log",
+    type=click.Path(dir_okay=False, writable=True, file_okay=True, allow_dash=True),
+    default="retries.log",
+    show_default=True,
+    help="File to log retries errors to.",
+)
+@click.option(
     "--output",
     "-o",
     type=click.Path(dir_okay=False, writable=True, file_okay=True, allow_dash=True),
@@ -59,6 +143,9 @@ def ask_command(  # noqa: PLR0913
     url: str,
     answers_db: str,
     timeout: int,
+    retries: int,
+    retry_sleep: int,
+    retries_log: str,
     output: str,
     cache: bool,
 ) -> None:
@@ -71,10 +158,12 @@ def ask_command(  # noqa: PLR0913
     file_model = QuestionsFile.model_validate(yaml.safe_load(questions_file))
     logger.info(f"Asking questions about dataset {file_model.dataset.id} on endpoint {url}.")
     check_output_file(file=output)
+    logger.add(retries_log, filter=lambda record: "retry" in record["extra"])
     responses = []
     for question_section in file_model.questions:
         for language, question in question_section.question.items():
             logger.info(f"{question} ({language}) ... ")
+            qname = f"{file_model.dataset.prefix}:{question_section.id}-{language}"
             try:
                 response = text2sparql(
                     endpoint=url,
@@ -86,13 +175,25 @@ def ask_command(  # noqa: PLR0913
                 )
                 answer: dict[str, str] = response.model_dump()
                 if question_section.id and file_model.dataset.prefix:
-                    answer["qname"] = (
-                        f"{file_model.dataset.prefix}:{question_section.id}-{language}"
-                    )
+                    answer["qname"] = qname
                     answer["uri"] = f"{file_model.dataset.id}{question_section.id}-{language}"
                 responses.append(answer)
             except (requests.ConnectionError, requests.HTTPError, requests.ReadTimeout) as error:
-                logger.error(str(error))
+                logger.bind(retry=True).warning(f"{qname} | {error}")
+                _retry_response(
+                    counter=1,
+                    retries=retries,
+                    retry_sleep=retry_sleep,
+                    responses=responses,
+                    url=url,
+                    file_model=file_model,
+                    question_section=question_section,
+                    language=language,
+                    question=question,
+                    database=database,
+                    timeout=timeout,
+                    cache=cache,
+                )
             except ValidationError as error:
                 logger.debug(str(error))
                 logger.error("validation error")

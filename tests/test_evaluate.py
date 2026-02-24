@@ -1,8 +1,6 @@
 """Test evaluate"""
 
-import pytest
-
-from tests import run, run_asserting_error, run_without_assertion
+from tests import run, run_asserting_error
 from tests.conftest import ResultSetsFiles, is_json_file
 
 
@@ -20,7 +18,7 @@ def test_successful_evaluation(result_sets_files: ResultSetsFiles) -> None:
 
 def test_language_evaluation_error(result_sets_files: ResultSetsFiles) -> None:
     """Test language option error in evaluation."""
-    result = run_without_assertion(
+    run_asserting_error(
         command=(
             "evaluate",
             "-l",
@@ -28,9 +26,9 @@ def test_language_evaluation_error(result_sets_files: ResultSetsFiles) -> None:
             "api_name",
             str(result_sets_files.result_set),
             str(result_sets_files.result_set),
-        )
+        ),
+        match="not a valid language list",
     )
-    assert result.exit_code >= 1, f"exit code should be 1 or more (but was {result.exit_code})"
 
 
 def test_missing_question_true_result_set(result_sets_files: ResultSetsFiles) -> None:
@@ -46,7 +44,6 @@ def test_missing_question_true_result_set(result_sets_files: ResultSetsFiles) ->
     )
 
 
-@pytest.mark.skip(reason="tests that require output to be save are currently disabled")
 def test_output_evaluation(result_sets_files: ResultSetsFiles) -> None:
     """Test evaluation with output file."""
     output = "output.json"
