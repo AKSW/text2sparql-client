@@ -1,8 +1,6 @@
 """Test query"""
 
-import pytest
-
-from tests import run, run_asserting_error, run_without_assertion
+from tests import run, run_asserting_error
 from tests.conftest import QuestionsFiles, ResponsesFiles, is_json_file
 
 
@@ -48,7 +46,7 @@ def test_language_query_error(
     questions_files: QuestionsFiles, responses_files: ResponsesFiles
 ) -> None:
     """Test query with language option error."""
-    result = run_without_assertion(
+    run_asserting_error(
         command=(
             "query",
             "-a",
@@ -56,12 +54,11 @@ def test_language_query_error(
             "-l",
             "en, de",
             str(questions_files.with_ids),
-        )
+        ),
+        match="not a valid language list",
     )
-    assert result.exit_code >= 1, f"exit code should be 1 or more (but was {result.exit_code})"
 
 
-@pytest.mark.skip(reason="tests that require output to be save are currently disabled")
 def test_output_query(questions_files: QuestionsFiles, responses_files: ResponsesFiles) -> None:
     """Test query with output file."""
     output = "output.json"

@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/)
 
+## [2.1.0] 2026-02-24
+
+### Added
+
+-ask command
+  - new options to control amount of `--retries` and the amount fo `--retry-sleep` between retries
+  - all logs from retries and eventual skips are logged into the `--retries-log`
+- tests
+  - added tests for the new retry options and logging
+
+### Changed
+
+- serve command
+  - default waiting time for answer requests is now 3 seconds instead of 0 to allow for timeout logging tests to work properly
+- fixes
+  - fixed a testing bug where after Click 8.2.0 the stdout and stderr were not properly captured in the tests with error assertion
+
 ## [2.0.0] 2026-02-11
 
 ### Added

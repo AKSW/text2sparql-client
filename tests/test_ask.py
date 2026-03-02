@@ -1,8 +1,6 @@
 """Test queries"""
 
-import pytest
-
-from tests import run, run_asserting_error
+from tests import run, run_asserting_error, run_without_assertion
 from tests.conftest import QuestionsFiles, ServerFixture, is_json_file
 
 
@@ -30,7 +28,31 @@ def test_non_successful_runs(server: ServerFixture, questions_files: QuestionsFi
     )
 
 
-@pytest.mark.skip(reason="tests that require output to be save are currently disabled")
+def test_timeout_handling_and_loggin(
+    server: ServerFixture, questions_files: QuestionsFiles
+) -> None:
+    """Test timeout handling and logging requests."""
+    command = (
+        "ask",
+        "--timeout",
+        "1",
+        "--retries",
+        "2",
+        "--retry-sleep",
+        "0",
+        "--retries-log",
+        "-",
+        "-o",
+        "output.json",
+        str(questions_files.with_ids),
+        server.get_url(),
+    )
+    result = run_without_assertion(command=command)
+    assert "Read timed out" in result.output
+    assert "Retrying" in result.output
+    assert "Maximum number of retries reached" in result.output
+
+
 def test_output(server: ServerFixture, questions_files: QuestionsFiles) -> None:
     """Test different output files."""
     output = "output.json"
@@ -42,10 +64,9 @@ def test_output(server: ServerFixture, questions_files: QuestionsFiles) -> None:
     assert is_json_file(output), "Output file should be JSON."
 
 
-@pytest.mark.skip(reason="tests that require output to be save are currently disabled")
 def test_cached_response(server: ServerFixture, questions_files: QuestionsFiles) -> None:
     """Test cached response."""
     command = ("ask", str(questions_files.with_ids), server.get_url())
-    assert "Cached response found." not in run(command=command).stdout
-    assert "Cached response found." in run(command=command).stdout
-    assert "Cached response found." not in run(command=(*command, "--no-cache")).stdout
+    assert "Cached response found." not in run(command=command).output
+    assert "Cached response found." in run(command=command).output
+    assert "Cached response found." not in run(command=(*command, "--no-cache")).output
