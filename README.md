@@ -21,27 +21,6 @@ Command Line Client to retrieve SPARQL results from a TEXT2SPARQL conform endpoi
 [copier]: https://copier.readthedocs.io/
 [copier-shield]: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/copier-org/copier/master/img/badge/badge-grayscale-inverted-border-purple.json
 
-## Usage
-
-The TEXT2SPARQL-CLIENT is the official testing CLI tool for the [International TEXT2SPARQL challenge](https://text2sparql.aksw.org/latest/). [Tentris](https://tentris.io/)-based endpoints are set-up as every graph in its own docker container, using the standard configuration.
-
-### CK25
-
-Usage example for the CK25 dataset from the [First International TEXT2SPARQL challenge](https://text2sparql.aksw.org/2025/). To execute tests for the CK25 dataset you will need a valid API according to the challenge specifications, [see](https://text2sparql.aksw.org/latest/participation/challenge/#process) and the directory `examples`. It contains the questions file `questions_ck25.yml` the True Result-set `ck25_true_result.json` (which can be generated with the questions file running the command `text2sparql query -o "ck25_true_result.json" questions.yml`), and the example shell file. To ask, query and evaluate according to your API open the `examples` directory and run `run_ck25.sh` passing `<API_URL> <API_NAME>`, for example:
-
-```bash
-cd examples
-bash run_ck25.sh "http://localhost:8000" "text2sparql"
-```
-
-### DB25
-
-Usage example for the DB25 dataset from the [First International TEXT2SPARQL challenge](https://text2sparql.aksw.org/2025/). To execute tests for the CK25 dataset you will need a valid API according to the challenge specifications, [see](https://text2sparql.aksw.org/latest/participation/challenge/#process) and the directory `examples`. It contains the questions file `questions_db25.yml` the True Result-set `db25_true_result.json` (which can be generated with the questions file running the command `text2sparql query -o "db25_true_result.json" questions.yml`), and the example shell file. To ask, query and evaluate according to your API open the `examples` directory and run `run_db25.sh` passing `<API_URL> <API_NAME>`, for example:
-
-```bash
-cd examples
-bash run_db25.sh "http://localhost:8000" "text2sparql"
-```
 
 ## Commands Reference
 
