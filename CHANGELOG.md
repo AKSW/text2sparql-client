@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/)
 
+## [2.1.2] 2026-04-09
+
+### Changed
+
+-evaluate command
+  - fixed a bug where question files without any questions with the `RESULT_ORDER_MATTERS` flag would break the evaluation
+
 ## [2.1.1] 2026-04-07
 
 ### Changed

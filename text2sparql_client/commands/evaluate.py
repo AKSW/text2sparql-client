@@ -105,11 +105,12 @@ def evaluate_command(
 
     if len(languages) > 1:
         all_metrics = list(evaluator.metrics)
-        if "ndcg" not in all_metrics:
+        if "order_required" in true_set_dict and "ndcg" not in all_metrics:
             all_metrics.append("ndcg")
         generate_language_averages(results, languages, all_metrics)
-        for language in languages:
-            combine_averages(results, "ndcg", average_field=f"average-{language}")
+        if "order_required" in true_set_dict:
+            for language in languages:
+                combine_averages(results, "ndcg", average_field=f"average-{language}")
 
     logger.info(f"Writing {len(results)} results to {output if output != '-' else 'stdout'}.")
     with click.open_file(filename=output, mode="w", encoding="UTF-8") as file:
