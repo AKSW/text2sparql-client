@@ -2,6 +2,7 @@
 
 from datetime import UTC, datetime
 
+from loguru import logger
 from requests import Response, get
 
 from text2sparql_client.database import Database
@@ -10,7 +11,14 @@ from text2sparql_client.models.response import ResponseMessage
 
 def response_to_response_message(endpoint: str, response: Response) -> ResponseMessage:
     """Create a response message"""
-    response_message = ResponseMessage(**response.json())
+    try:
+        response_message = ResponseMessage(**response.json())
+    except Exception as error:
+        logger.error(
+            f"Error while decoding request JSON: {error}.\n----\nResponse text: {response.text}"
+        )
+        raise
+
     response_message.endpoint = endpoint
     return response_message
 

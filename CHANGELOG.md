@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](https://semver.org/)
 
+## [2.1.3] 2026-04-10
+
+### Changed
+
+-ask command
+  - added an error log for when response.json() fails the parsing step to help with debugging when the server returns an error response that is not in JSON format
+
+
 ## [2.1.2] 2026-04-09
 
 ### Changed
